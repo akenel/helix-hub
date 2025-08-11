@@ -1,0 +1,27 @@
+http:
+  routers:
+    helix-router:
+      rule: "Host(`helix.local`)"
+      entryPoints:
+        - websecure
+      service: helix-service
+      tls:
+        certResolver: mktls
+  services:
+    helix-service:
+      loadBalancer:
+        servers:
+          - url: "http://helix-core:5000"
+  middlewares:
+    # In dev, Traefik doesn't validate JWT. The app enforces JWT and RBAC.
+    # In prod you could add additional forward auth here.
+        - name: jwt-auth
+          forwardAuth:
+            address: "http://helix-core:5000/auth/validate"
+            trustForwardHeader: true
+            authResponseHeaders:
+              - "Authorization"
+            authRequestHeaders:
+              - "Authorization"
+            authResponseHeadersRegex: "Authorization"
+            authRequestHeadersRegex: "Authorization"

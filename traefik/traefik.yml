@@ -1,0 +1,17 @@
+log:
+  level: INFO
+api:
+  insecure: false
+entryPoints:
+  websecure:
+    address: ":8443"
+providers:
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true
+certificatesResolvers:
+  mktls:
+    # we are not using ACME in local dev. Traefik will be provided with certs from ./traefik/certs
+    acme:
+      email: you@example.com
+      storage: /acme.json
