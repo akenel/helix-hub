@@ -80,6 +80,34 @@ docker-compose logs -f helix-core
 open http://localhost:5000/dashboard
 ```
 
+---
+
+## 🆕 **Latest Features (August 2025)**
+
+### **🔍 Audit Trail & Compliance**
+- **Timestamped Archives**: Files archived with precise timestamps matching Docker logs
+- **Full Audit Trail**: Every file operation logged with nanosecond precision
+- **Swiss Banking Compliance**: Audit-ready logging for regulatory requirements
+- **Example**: `sample_file_Processed_20250811_214526_123.mt940`
+
+### **📚 Interactive API Documentation**
+- **Swagger UI**: `http://localhost:5000/swagger/` - Beautiful, interactive API docs
+- **Debug Endpoints**: Real-time system state inspection
+- **JWT Authentication**: Secure API access with role-based permissions
+- **Developer Friendly**: Login with `admin` / `helix123` for testing
+
+### **🎛️ Enhanced Developer Experience**
+```bash
+# New startup logs show everything you need:
+🧑‍💻 DEVELOPER & API TESTING:
+📚 Swagger API Docs: http://localhost:5000/swagger/
+🔍 Debug Dashboard: http://localhost:5000/api/debug/dashboard
+🏥 Health Check: http://localhost:5000/api/system/health
+🔑 Login Required: Use 'admin' / 'helix123' for JWT endpoints
+💡 Pro Tip: Swagger UI provides interactive API testing!
+🚀 Ready for Swiss-precision bank file processing! 🇨🇭
+```
+
 ### **Drop Your First File**
 ```bash
 # Copy any supported file to the incoming folder
@@ -105,8 +133,12 @@ cp your-bank-file.mt940 ./sftp/incoming/
 | Endpoint | Purpose | Emoji |
 |----------|---------|-------|
 | `/health` | System health check | 🏥 |
+| `/swagger/` | Interactive API documentation | 📚 |
+| `/api/system/health` | Swagger-documented health | 🏥 |
+| `/api/debug/dashboard` | Dashboard state debugging | 🔍 |
 | `/api/stats` | Processing statistics | 📈 |
 | `/api/logs` | Live log streaming | 📝 |
+| `/api/dashboard-data` | Real-time dashboard data | 🎛️ |
 | `/supported-formats` | Format capabilities | 📋 |
 
 ---

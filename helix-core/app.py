@@ -4,10 +4,12 @@ import threading
 import shutil
 import logging
 import sys
+from datetime import datetime
 import mt940
 import paramiko
 from flask import Flask, request, jsonify, render_template
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt
+from flask_restx import Api, Resource, fields, Namespace
 from file_processors import FileProcessorFactory
 from dashboard import dashboard_data
 
@@ -39,6 +41,55 @@ except ImportError:
 # ---- Flask Setup ----
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY", "changeme")
+
+# ---- Swagger API Documentation Setup ----
+api = Api(
+    app, 
+    version='1.0', 
+    title='Helix Bank File Processing API',
+    description='🏦 Swiss-precision bank file processing with multi-format support\n\n'
+                '🇨🇭 Features: MT940, CAMT.053, BAI2, CSV processing\n'
+                '📊 Real-time dashboard and monitoring\n'
+                '🔒 JWT authentication and RBAC\n'
+                '📡 SFTP integration and SAP connectivity',
+    doc='/swagger/',
+    prefix='/api'
+)
+
+# API Namespaces
+ns_auth = api.namespace('auth', description='🔐 Authentication operations')
+ns_files = api.namespace('files', description='📁 File processing operations') 
+ns_dashboard = api.namespace('dashboard', description='📊 Dashboard and monitoring')
+ns_system = api.namespace('system', description='🔧 System health and info')
+
+# API Models for documentation
+login_model = api.model('Login', {
+    'username': fields.String(required=True, description='Username', example='admin'),
+    'password': fields.String(required=True, description='Password', example='admin123')
+})
+
+token_response = api.model('TokenResponse', {
+    'access_token': fields.String(description='JWT access token')
+})
+
+stats_model = api.model('Stats', {
+    'total_files_processed': fields.Integer(description='Total files processed'),
+    'total_transactions': fields.Integer(description='Total transactions'),
+    'total_amount': fields.Float(description='Total monetary amount'),
+    'success_rate': fields.Float(description='Success rate percentage'),
+    'last_processed': fields.String(description='Last processing timestamp')
+})
+
+health_model = api.model('Health', {
+    'status': fields.String(description='System health status', example='healthy')
+})
+
+supported_format_model = api.model('SupportedFormat', {
+    'file_type': fields.String(description='File format type'),
+    'description': fields.String(description='Format description'),
+    'emoji': fields.String(description='Format emoji'),
+    'extensions': fields.List(fields.String(), description='File extensions')
+})
 
 # Enable Flask logging
 if os.getenv("FLASK_ENV") != "production":
@@ -95,15 +146,22 @@ def require_role(roles):
     return wrapper
 
 # ---- Auth Endpoints ----
-@app.route("/login", methods=["POST"])
-def login():
-    username = request.json.get("username")
-    password = request.json.get("password")
-    user = USERS.get(username)
-    if not user or user["password"] != password:
-        return jsonify({"error": "invalid credentials"}), 401
-    token = create_access_token(identity=username, additional_claims={"role": user["role"]})
-    return jsonify(access_token=token)
+@ns_auth.route('/login')
+class Login(Resource):
+    @api.doc('login', security=None)
+    @api.expect(login_model)
+    @api.marshal_with(token_response)
+    @api.response(200, 'Login successful')
+    @api.response(401, 'Invalid credentials')
+    def post(self):
+        """🔐 Authenticate user and get JWT token"""
+        username = request.json.get("username")
+        password = request.json.get("password")
+        user = USERS.get(username)
+        if not user or user["password"] != password:
+            api.abort(401, "Invalid credentials")
+        token = create_access_token(identity=username, additional_claims={"role": user["role"]})
+        return {"access_token": token}
 
 @app.route("/")
 def home():
@@ -152,12 +210,57 @@ def api_logs():
 
 @app.route("/api/dashboard-data")
 def dashboard_data_api():
-    """API endpoint for dashboard data (legacy)"""
-    return jsonify(dashboard_data.get_stats())
+    """API endpoint for dashboard data"""
+    return jsonify(dashboard_data.get_dashboard_data())
 
+# ---- Swagger API Endpoints ----
+@ns_dashboard.route('/stats')
+class Stats(Resource):
+    @api.doc('get_stats')
+    @api.marshal_with(stats_model)
+    @api.response(200, 'Statistics retrieved successfully')
+    def get(self):
+        """📊 Get processing statistics"""
+        return dashboard_data.get_stats()
+
+@ns_system.route('/health')
+class Health(Resource):
+    @api.doc('health_check')
+    @api.marshal_with(health_model)
+    @api.response(200, 'System is healthy')
+    def get(self):
+        """🏥 Check system health status"""
+        return {"status": "healthy"}
+    def get(self):
+        """🏥 Check system health status"""
+        return {"status": "healthy"}
+
+# Backwards compatibility route
 @app.route("/health")
-def health():
+def health_legacy():
+    """🏥 Legacy health check endpoint"""
     return jsonify({"status": "healthy"})
+
+@app.route("/api/debug/dashboard")
+def debug_dashboard():
+    """🔍 Debug endpoint to check dashboard state"""
+    # Properly serialize deque objects for JSON
+    processing_stats = dict(dashboard_data.processing_stats)
+    processing_stats['processing_times'] = list(processing_stats['processing_times'])
+    processing_stats['files_by_type'] = dict(processing_stats['files_by_type'])
+    processing_stats['hourly_stats'] = dict(processing_stats['hourly_stats'])
+    
+    sftp_status = dict(dashboard_data.sftp_status)
+    sftp_status['errors'] = list(sftp_status['errors'])
+    if sftp_status['last_poll'] and hasattr(sftp_status['last_poll'], 'isoformat'):
+        sftp_status['last_poll'] = sftp_status['last_poll'].isoformat()
+    
+    return jsonify({
+        "processing_stats": processing_stats,
+        "recent_activities": list(dashboard_data.recent_activities),
+        "sftp_status": sftp_status,
+        "current_processing": dashboard_data.current_processing
+    })
 
 @app.route("/supported-formats")
 def supported_formats():
@@ -243,12 +346,17 @@ def sftp_poll_loop():
                         dashboard_data.complete_processing(filename, success=False, processing_time=processing_time)
                         raise e
 
-                    archive_path = os.path.join(ARCHIVE_DIR, filename)
+                    # Create audit-friendly filename with timestamp matching Docker logs
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]  # microseconds to milliseconds
+                    name_part, ext_part = os.path.splitext(filename)
+                    archived_filename = f"{name_part}_Processed_{timestamp}{ext_part}"
+                    archive_path = os.path.join(ARCHIVE_DIR, archived_filename)
+                    
                     shutil.move(local_path, archive_path)
-                    logger.info(f"📦 Moved {filename} from staging to archive: {archive_path}")
+                    logger.info(f"📦 Moved {filename} from staging to archive: {archived_filename}")
                     sftp.remove(remote_path)
                     logger.info(f"🗑️ Removed {filename} from SFTP server")
-                    logger.info(f"🎉 Successfully archived {filename}")
+                    logger.info(f"🎉 Successfully archived {filename} as {archived_filename}")
 
             sftp.close()
             ssh.close()
@@ -332,6 +440,14 @@ logger.info("📈 Stats: http://localhost:5000/api/stats")
 logger.info("📝 Logs: http://localhost:5000/api/logs")
 logger.info("🏥 Health: http://localhost:5000/health")
 logger.info("📋 Formats: http://localhost:5000/supported-formats")
+logger.info("=" * 70)
+logger.info("🧑‍💻 DEVELOPER & API TESTING:")
+logger.info("📚 Swagger API Docs: http://localhost:5000/swagger/")
+logger.info("🔍 Debug Dashboard: http://localhost:5000/api/debug/dashboard")
+logger.info("🏥 Health Check: http://localhost:5000/api/system/health")
+logger.info("🔑 Login Required: Use 'admin' / 'helix123' for JWT endpoints")
+logger.info("💡 Pro Tip: Swagger UI provides interactive API testing!")
+logger.info("🚀 Ready for Swiss-precision bank file processing! 🇨🇭")
 logger.info("=" * 70)
 logger.info("💡 TIP: Add '127.0.0.1 helix.local' to your hosts file for Traefik!")
 logger.info("=" * 70)

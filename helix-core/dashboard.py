@@ -132,10 +132,22 @@ class DashboardData:
 
     def get_dashboard_data(self):
         """Get all dashboard data for the frontend"""
+        # Convert processing_stats with proper serialization of deque objects
+        processing_stats = dict(self.processing_stats)
+        processing_stats['processing_times'] = list(processing_stats['processing_times'])
+        processing_stats['files_by_type'] = dict(processing_stats['files_by_type'])
+        processing_stats['hourly_stats'] = dict(processing_stats['hourly_stats'])
+        
+        # Convert sftp_status with proper serialization of deque objects
+        sftp_status = dict(self.sftp_status)
+        sftp_status['errors'] = list(sftp_status['errors'])
+        if sftp_status['last_poll'] and hasattr(sftp_status['last_poll'], 'isoformat'):
+            sftp_status['last_poll'] = sftp_status['last_poll'].isoformat()
+        
         return {
             'recent_activities': list(self.recent_activities),
-            'processing_stats': dict(self.processing_stats),
-            'sftp_status': self.sftp_status,
+            'processing_stats': processing_stats,
+            'sftp_status': sftp_status,
             'current_processing': self.current_processing,
             'timestamp': datetime.now().isoformat()
         }
