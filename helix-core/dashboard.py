@@ -141,6 +141,7 @@ class DashboardData:
         # Convert sftp_status with proper serialization of deque objects
         sftp_status = dict(self.sftp_status)
         sftp_status['errors'] = list(sftp_status['errors'])
+        # Handle last_poll - it might be a datetime or string
         if sftp_status['last_poll'] and hasattr(sftp_status['last_poll'], 'isoformat'):
             sftp_status['last_poll'] = sftp_status['last_poll'].isoformat()
         
