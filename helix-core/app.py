@@ -152,8 +152,8 @@ def api_logs():
 
 @app.route("/api/dashboard-data")
 def dashboard_data_api():
-    """API endpoint for dashboard data (legacy)"""
-    return jsonify(dashboard_data.get_stats())
+    """API endpoint for dashboard data"""
+    return jsonify(dashboard_data.get_dashboard_data())
 
 @app.route("/health")
 def health():
