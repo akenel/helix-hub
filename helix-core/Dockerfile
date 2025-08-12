@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app.py .
 COPY file_processors.py .
 COPY dashboard.py .
+COPY routing.py .
 COPY templates/ ./templates/
 
 # Ensure Python output is not buffered

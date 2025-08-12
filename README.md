@@ -1,50 +1,60 @@
-# 🚀 Helix Hub - The Enterprise Data Integration Revolution
+# 🇨🇭 Helix Hub - SwissLife-Inspired Enterprise Banking Integration
 
 <div align="center">
 
-![Helix Hub Logo](https://via.placeholder.com/400x200/667eea/ffffff?text=🏦+HELIX+HUB)
+![Helix Hub Logo](https://via.placeholder.com/600x300/667eea/ffffff?text=🏦+HELIX+HUB+🇨🇭)
 
-**The lightweight, emoji-powered, Swiss-bank-approved data integration platform that makes SAP BTP look expensive and slow** 💸
+**The Swiss-precision, emoji-powered, enterprise routing platform that makes bankers drool and SAP architects question their life choices** 🤤�
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://www.docker.com/)
-[![SAP RFC](https://img.shields.io/badge/SAP-RFC%20Compatible-orange)](https://help.sap.com/rfc)
-[![Real-time](https://img.shields.io/badge/Real--time-Monitoring-green)](http://localhost:5000/dashboard)
-[![Multi-format](https://img.shields.io/badge/Multi--format-Support-purple)](#supported-formats)
+[![SwissLife](https://img.shields.io/badge/SwissLife-Inspired-red?logo=switzerland)](https://www.swisslife.com/)
+[![Enterprise](https://img.shields.io/badge/Enterprise-Routing-gold)](http://localhost:5000/swagger/)
+[![Real-time](https://img.shields.io/badge/Real--time-Dashboard-green)](http://localhost:5000/dashboard)
+[![Multi-format](https://img.shields.io/badge/6+Formats-Support-purple)](#supported-formats)
 
-*"What if enterprise integration was actually... fun?"* 🎉
+*"Swiss precision meets emoji delight - making enterprise banking integration actually enjoyable!"* 🎉🇨🇭
 
 </div>
 
 ---
 
-## 🎯 **What Makes Enterprise Architects Cry Happy Tears**
+## 🎯 **What Makes Enterprise Bankers Drool**
 
-### **💰 The Price Point That Breaks The Market**
-- **Helix Hub**: `FREE` (+ your Docker skills)
-- **SAP BTP**: `$500K+` (+ 6-month implementation + therapy)
-- **MuleSoft**: `$200K+` (+ existential dread)
-- **You do the math** 📊
+### **🇨🇭 SwissLife-Inspired Enterprise Routing System**
+```
+DEPT-PROCESS-TYPE Routing Architecture:
+📊 FINANCE-PAYMENT-MT940    → Finance payment processing with MT940 files
+🏛️ TREASURY-TRADE-CAMT053   → Treasury trading with CAMT.053 files  
+👥 HR-PAYROLL-CSV           → HR payroll processing with CSV files
+🔒 COMPLIANCE-AUDIT-BAI2    → Compliance auditing with BAI2 files
+⚙️ OPERATIONS-SETTLEMENT    → Operations settlement processing
+```
 
-### **⚡ The Speed That Makes CTOs Weep**
+### **💰 The Price Point That Bankrupts SAP**
+- **Helix Hub**: `FREE` (+ Swiss chocolate for developers 🍫)
+- **SAP BTP**: `$500K+` (+ 18-month implementation + Swiss therapy)
+- **SwissLife Banking Platform**: `$2M+` (+ existential crisis)
+- **You do the math** 📊💸
+
+### **⚡ The Speed That Makes Swiss Bankers Weep**
 ```bash
-# From zero to processing bank files in 30 seconds
+# From zero to Swiss-precision banking in 30 seconds
 git clone https://github.com/akenel/helix-hub.git
 cd helix-hub
 docker-compose up -d
-# 🎉 You're now processing MT940, CAMT.053, BAI2, and CSV files!
+# 🎉 You're now routing with Swiss precision across 27 enterprise combinations!
 ```
 
-### **🎨 The Logs That Make Developers Actually Want To Debug**
+### **🎨 The Logs That Make Banking Fun Again**
 ```
-2025-08-11 17:04:26,420 [Helix] INFO: 🏛️ Parsing BAI2 file: sample_bai2.bai
-2025-08-11 17:04:26,420 [Helix] INFO: 💰 Tx 1: 2500.0 CHF - Salary Payment
-2025-08-11 17:04:26,420 [Helix] INFO: 💰 Tx 2: 500.0 CHF - Office Rent
-2025-08-11 17:04:26,420 [Helix] INFO: 🎉 ===== 🏛️ BAI2 FILE PROCESSING COMPLETED =====
+2025-08-11 23:58:07 [Helix] INFO: 💰 📊 📤 File uploaded: FINANCE-PAYMENT-MT940 | sample.mt940 | Priority: HIGH
+2025-08-11 23:58:07 [Helix] INFO: 🏛️ 💼 � Processing started: TREASURY-TRADE-CAMT053 | Swiss precision in action! 🇨🇭
+2025-08-11 23:58:07 [Helix] INFO: � 📊 ✅ Compliance check passed: COMPLIANCE-AUDIT-CSV | Another satisfied Swiss banker! 💰
 ```
 
 ---
 
-## 🏦 **Supported Banking Formats** 
+## 🏦 **Enterprise Banking Format Arsenal** 
 
 | Format | Emoji | Description | Status |
 |--------|-------|-------------|---------|
@@ -82,29 +92,50 @@ open http://localhost:5000/dashboard
 
 ---
 
-## 🆕 **Latest Features (August 2025)**
+## 🆕 **Latest Features (August 2025) - SwissLife Enterprise Edition**
 
-### **🔍 Audit Trail & Compliance**
+### **🇨🇭 SwissLife-Inspired Enterprise Routing Engine**
+- **3-Part Routing Architecture**: `DEPT-PROCESS-TYPE` routing with Swiss precision
+- **27 Enterprise Combinations**: Complete matrix of department-process-filetype routing
+- **Department-Based Access Control**: Fine-grained permissions and approval workflows
+- **Example**: `FINANCE-PAYMENT-MT940`, `TREASURY-TRADE-CAMT053`, `HR-PAYROLL-CSV`
+
+### **🏦 Enterprise Department Coverage**
+```
+👥 HR: Human Resources          → PAYROLL, BENEFITS, ONBOARDING
+💰 FINANCE: Finance Department  → PAYMENT, ACCOUNTING, BUDGETING  
+🏛️ TREASURY: Treasury Operations → TRADE, CASHFLOW, FOREX
+🔒 COMPLIANCE: Compliance & Risk → AUDIT, REPORTING, MONITORING
+⚙️ OPERATIONS: Operations       → SETTLEMENT, CLEARING, RECONCILE
+```
+
+### **� REST API Enterprise Endpoints**
+- **File Upload**: `POST /api/files/upload` - Enterprise file routing with validation
+- **Department Discovery**: `GET /api/files/departments` - Available routing options
+- **Routing Codes**: `GET /api/files/routing-codes` - All 27 valid combinations
+- **Job Management**: `GET /api/files/jobs/{job_id}` - Swiss-precision job tracking
+
+### **�🔍 Audit Trail & Compliance** 
 - **Timestamped Archives**: Files archived with precise timestamps matching Docker logs
 - **Full Audit Trail**: Every file operation logged with nanosecond precision
 - **Swiss Banking Compliance**: Audit-ready logging for regulatory requirements
-- **Example**: `sample_file_Processed_20250811_214526_123.mt940`
+- **Beautiful Emoji Logs**: Making bankers drool with precision! 🤤
 
 ### **📚 Interactive API Documentation**
-- **Swagger UI**: `http://localhost:5000/swagger/` - Beautiful, interactive API docs
-- **Debug Endpoints**: Real-time system state inspection
-- **JWT Authentication**: Secure API access with role-based permissions
-- **Developer Friendly**: Login with `admin` / `helix123` for testing
+- **Swagger UI**: `http://localhost:5000/swagger/` - Enterprise-grade API docs
+- **JWT Authentication**: Secure API access with `admin` / `adminpass`
+- **Real-time Testing**: Interactive endpoint testing within Swagger UI
+- **Developer Friendly**: Complete API exploration and testing suite
 
 ### **🎛️ Enhanced Developer Experience**
 ```bash
 # New startup logs show everything you need:
-🧑‍💻 DEVELOPER & API TESTING:
-📚 Swagger API Docs: http://localhost:5000/swagger/
-🔍 Debug Dashboard: http://localhost:5000/api/debug/dashboard
-🏥 Health Check: http://localhost:5000/api/system/health
-🔑 Login Required: Use 'admin' / 'helix123' for JWT endpoints
-💡 Pro Tip: Swagger UI provides interactive API testing!
+🇨🇭 HELIX ENTERPRISE ROUTING ENGINE ACTIVE
+� Enterprise File Upload: POST /api/files/upload
+� Job Status Tracking: GET /api/files/jobs/{job_id}
+� Available Departments: GET /api/files/departments
+🎯 Routing Codes: GET /api/files/routing-codes
+� Swagger API Docs: http://localhost:5000/swagger/
 🚀 Ready for Swiss-precision bank file processing! 🇨🇭
 ```
 

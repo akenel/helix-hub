@@ -12,6 +12,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from flask_restx import Api, Resource, fields, Namespace
 from file_processors import FileProcessorFactory
 from dashboard import dashboard_data
+from routing import HelixRoutingEngine, RoutingCode, FileJob, ProcessingStatus
 
 # Configure Python logging to stdout
 logging.basicConfig(
@@ -62,10 +63,14 @@ ns_files = api.namespace('files', description='📁 File processing operations')
 ns_dashboard = api.namespace('dashboard', description='📊 Dashboard and monitoring')
 ns_system = api.namespace('system', description='🔧 System health and info')
 
+# ---- Enterprise Routing Engine Setup ----
+routing_engine = HelixRoutingEngine()
+logger.info("🇨🇭 SwissLife-inspired Routing Engine initialized - Ready for precision!")
+
 # API Models for documentation
 login_model = api.model('Login', {
     'username': fields.String(required=True, description='Username', example='admin'),
-    'password': fields.String(required=True, description='Password', example='admin123')
+    'password': fields.String(required=True, description='Password', example='adminpass')
 })
 
 token_response = api.model('TokenResponse', {
@@ -89,6 +94,31 @@ supported_format_model = api.model('SupportedFormat', {
     'description': fields.String(description='Format description'),
     'emoji': fields.String(description='Format emoji'),
     'extensions': fields.List(fields.String(), description='File extensions')
+})
+
+# Enterprise Routing API Models
+routing_code_model = api.model('RoutingCode', {
+    'department': fields.String(required=True, description='Department code', example='FINANCE'),
+    'process': fields.String(required=True, description='Process type', example='PAYMENT'),
+    'file_type': fields.String(required=True, description='File type', example='MT940')
+})
+
+file_upload_model = api.model('FileUpload', {
+    'routing_code': fields.Nested(routing_code_model, required=True, description='3-part routing identifier'),
+    'priority': fields.String(description='Processing priority', enum=['LOW', 'NORMAL', 'HIGH', 'URGENT'], default='NORMAL'),
+    'notes': fields.String(description='Optional processing notes')
+})
+
+job_status_model = api.model('JobStatus', {
+    'job_id': fields.String(description='Unique job identifier'),
+    'routing_code': fields.String(description='Full routing code'),
+    'status': fields.String(description='Current processing status'),
+    'file_path': fields.String(description='File location'),
+    'created_at': fields.String(description='Job creation timestamp'),
+    'started_at': fields.String(description='Processing start time'),
+    'completed_at': fields.String(description='Processing completion time'),
+    'error_message': fields.String(description='Error details if failed'),
+    'audit_trail': fields.List(fields.String(), description='Processing audit log')
 })
 
 # Enable Flask logging
@@ -445,10 +475,185 @@ logger.info("🧑‍💻 DEVELOPER & API TESTING:")
 logger.info("📚 Swagger API Docs: http://localhost:5000/swagger/")
 logger.info("🔍 Debug Dashboard: http://localhost:5000/api/debug/dashboard")
 logger.info("🏥 Health Check: http://localhost:5000/api/system/health")
-logger.info("🔑 Login Required: Use 'admin' / 'helix123' for JWT endpoints")
+logger.info("🔑 Login Required: Use 'admin' / 'adminpass' for JWT endpoints")
 logger.info("💡 Pro Tip: Swagger UI provides interactive API testing!")
 logger.info("🚀 Ready for Swiss-precision bank file processing! 🇨🇭")
+
+# ---- Enterprise File Upload API Endpoints ----
+
+@ns_files.route('/upload')
+class EnterpriseFileUpload(Resource):
+    @api.expect(file_upload_model)
+    @api.doc('upload_file', security='apikey')
+    @api.response(201, 'File uploaded successfully', job_status_model)
+    @api.response(400, 'Invalid routing code or file format')
+    @api.response(401, 'Authentication required')
+    @jwt_required()
+    def post(self):
+        """🇨🇭 Swiss-precision enterprise file upload with routing"""
+        try:
+            data = request.get_json()
+            
+            # Extract routing code
+            routing_data = data.get('routing_code', {})
+            routing_code = RoutingCode(
+                department=routing_data.get('department'),
+                process=routing_data.get('process'),
+                file_type=routing_data.get('file_type')
+            )
+            
+            # Validate routing code
+            if not routing_engine.validate_routing_code(routing_code):
+                return {
+                    'error': 'Invalid routing code',
+                    'message': f'❌ Routing {routing_code.to_string()} not supported'
+                }, 400
+            
+            # Handle file upload (multipart form data)
+            if 'file' not in request.files:
+                return {'error': 'No file provided'}, 400
+                
+            file = request.files['file']
+            if file.filename == '':
+                return {'error': 'No file selected'}, 400
+            
+            # Create file job
+            priority = data.get('priority', 'NORMAL')
+            notes = data.get('notes', '')
+            
+            job = routing_engine.create_file_job(
+                routing_code=routing_code,
+                file_path=file.filename,
+                priority=priority,
+                notes=notes
+            )
+            
+            # Save file to processing directory
+            upload_dir = f"/sftp/incoming/{routing_code.department.lower()}"
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            file_path = os.path.join(upload_dir, f"{job.job_id}_{file.filename}")
+            file.save(file_path)
+            
+            # Update job with actual file path
+            job.file_path = file_path
+            job.start_processing()
+            
+            logger.info(routing_engine.get_beautiful_log_message(job, "📤 File uploaded"))
+            
+            return {
+                'job_id': job.job_id,
+                'routing_code': job.routing_code.to_string(),
+                'status': job.status.value,
+                'message': f'🎯 File routed to {routing_code.department} for {routing_code.process} processing'
+            }, 201
+            
+        except Exception as e:
+            logger.error(f"❌ File upload failed: {str(e)}")
+            return {'error': f'Upload failed: {str(e)}'}, 500
+
+@ns_files.route('/jobs/<string:job_id>')
+class FileJobStatus(Resource):
+    @api.doc('get_job_status', security='apikey')
+    @api.response(200, 'Job status retrieved', job_status_model)
+    @api.response(404, 'Job not found')
+    @jwt_required()
+    def get(self, job_id):
+        """📋 Get enterprise file job status"""
+        try:
+            job = routing_engine.get_job_status(job_id)
+            if not job:
+                return {'error': f'Job {job_id} not found'}, 404
+            
+            return {
+                'job_id': job.job_id,
+                'routing_code': job.routing_code.to_string(),
+                'status': job.status.value,
+                'file_path': job.file_path,
+                'created_at': job.created_at.isoformat(),
+                'started_at': job.started_at.isoformat() if job.started_at else None,
+                'completed_at': job.completed_at.isoformat() if job.completed_at else None,
+                'error_message': job.error_message,
+                'audit_trail': job.audit_trail
+            }
+            
+        except Exception as e:
+            return {'error': str(e)}, 500
+
+@ns_files.route('/departments')
+class AvailableDepartments(Resource):
+    @api.doc('get_departments')
+    @api.response(200, 'Available departments')
+    def get(self):
+        """🏢 Get available departments for routing"""
+        departments = []
+        for dept_code, dept_info in routing_engine.departments.items():
+            departments.append({
+                'code': dept_code,
+                'name': dept_info['name'],
+                'emoji': dept_info['emoji'],
+                'processes': list(dept_info['processes'].keys())
+            })
+        return {'departments': departments}
+
+@ns_files.route('/routing-codes')
+class AvailableRoutingCodes(Resource):
+    @api.doc('get_routing_codes')
+    @api.response(200, 'Available routing codes')
+    def get(self):
+        """🎯 Get all valid routing code combinations"""
+        codes = []
+        for dept_code, dept_info in routing_engine.departments.items():
+            for process_code, file_types in dept_info['processes'].items():
+                for file_type in file_types:
+                    routing_code = RoutingCode(dept_code, process_code, file_type)
+                    codes.append({
+                        'routing_code': routing_code.to_string(),
+                        'department': dept_code,
+                        'process': process_code,
+                        'file_type': file_type,
+                        'description': f"{dept_info['name']} - {process_code} - {file_type}"
+                    })
+        return {'routing_codes': codes}
+
+@ns_files.route('/jobs')
+class AllFileJobs(Resource):
+    @api.doc('list_jobs', security='apikey')
+    @api.response(200, 'Jobs list retrieved')
+    @jwt_required()
+    def get(self):
+        """📊 List all file processing jobs"""
+        try:
+            jobs = []
+            for job_id, job in routing_engine.jobs.items():
+                jobs.append({
+                    'job_id': job.job_id,
+                    'routing_code': job.routing_code.to_string(),
+                    'status': job.status.value,
+                    'created_at': job.created_at.isoformat(),
+                    'file_path': job.file_path
+                })
+            
+            # Sort by creation time (newest first)
+            jobs.sort(key=lambda x: x['created_at'], reverse=True)
+            
+            return {
+                'jobs': jobs,
+                'total_count': len(jobs),
+                'message': f'🇨🇭 {len(jobs)} jobs managed with Swiss precision'
+            }
+            
+        except Exception as e:
+            return {'error': str(e)}, 500
+
+# ---- Startup and Initialization ----
+
 logger.info("=" * 70)
+logger.info("🇨🇭 HELIX ENTERPRISE ROUTING ENGINE ACTIVE")
+logger.info("📊 Enterprise File Upload: POST /api/files/upload")
+logger.info("📋 Job Status Tracking: GET /api/files/jobs/{job_id}")
+logger.info("🏢 Available Departments: GET /api/files/departments")
+logger.info("🎯 Routing Codes: GET /api/files/routing-codes")
 logger.info("💡 TIP: Add '127.0.0.1 helix.local' to your hosts file for Traefik!")
 logger.info("=" * 70)
 logger.info("🧵 Starting SFTP polling thread...")
