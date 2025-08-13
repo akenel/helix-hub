@@ -7,7 +7,7 @@ import sys
 from datetime import datetime
 import mt940
 import paramiko
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt
 from flask_restx import Api, Resource, fields, Namespace
 from file_processors import FileProcessorFactory
@@ -130,11 +130,102 @@ else:
 
 jwt = JWTManager(app)
 
-# ---- RBAC Users ----
+# ---- Enhanced RBAC Users with Profiles ----
+from datetime import datetime, timezone
+
+class UserProfile:
+    def __init__(self, username, password, role, full_name, email=None):
+        self.username = username
+        self.password = password
+        self.role = role
+        self.full_name = full_name
+        self.email = email or f"{username}@helix.bank"
+        self.created_at = datetime.now(timezone.utc)
+        self.last_login = None
+        self.login_count = 0
+        self.permissions = self._get_role_permissions()
+        
+    def _get_role_permissions(self):
+        """Define role-based permissions"""
+        permissions = {
+            "admin": {
+                "emoji": "👑",
+                "color": "#dc2626",  # Red
+                "can_manage_users": True,
+                "can_upload_files": True,
+                "can_delete_files": True,
+                "can_view_logs": True,
+                "can_modify_settings": True,
+                "can_export_data": True,
+                "dashboard_sections": ["all"]
+            },
+            "dev": {
+                "emoji": "💻", 
+                "color": "#2563eb",  # Blue
+                "can_manage_users": False,
+                "can_upload_files": True,
+                "can_delete_files": False,
+                "can_view_logs": True,
+                "can_modify_settings": False,
+                "can_export_data": True,
+                "dashboard_sections": ["upload", "processing", "api_tools", "logs"]
+            },
+            "auditor": {
+                "emoji": "📋",
+                "color": "#059669",  # Green
+                "can_manage_users": False,
+                "can_upload_files": False,
+                "can_delete_files": False,
+                "can_view_logs": True,
+                "can_modify_settings": False,
+                "can_export_data": True,
+                "dashboard_sections": ["stats", "logs", "reports", "audit_trail"]
+            }
+        }
+        return permissions.get(self.role, permissions["auditor"])
+    
+    def record_login(self):
+        """Record successful login with precise timestamp"""
+        self.last_login = datetime.now(timezone.utc)
+        self.login_count += 1
+        logger.info(f"🔐 User login: {self.username} ({self.role}) at {self.last_login.isoformat()}")
+    
+    def to_dict(self):
+        """Convert to dictionary for JSON responses"""
+        return {
+            "username": self.username,
+            "full_name": self.full_name,
+            "email": self.email,
+            "role": self.role,
+            "permissions": self.permissions,
+            "created_at": self.created_at.isoformat(),
+            "last_login": self.last_login.isoformat() if self.last_login else None,
+            "login_count": self.login_count
+        }
+
+# Enhanced user database with full profiles
 USERS = {
-    "admin": {"password": "adminpass", "role": "admin"},
-    "dev": {"password": "devpass", "role": "dev"},
-    "auditor": {"password": "auditpass", "role": "auditor"}
+    "admin": UserProfile(
+        username="admin",
+        password="adminpass", 
+        role="admin",
+        full_name="Admin Swiss",
+        email="admin@helix.bank"
+    ),
+    "dev": UserProfile(
+        username="dev",
+        password="devpass",
+        role="dev", 
+        full_name="Dev Engineer",
+        email="dev@helix.bank"
+    ),
+    "auditor": UserProfile(
+        username="auditor",
+        password="auditpass",
+        role="auditor",
+        full_name="Audit Manager", 
+        email="auditor@helix.bank"
+    )
 }
 
 # ---- SFTP & SAP Config ----
@@ -184,26 +275,77 @@ class Login(Resource):
     @api.response(200, 'Login successful')
     @api.response(401, 'Invalid credentials')
     def post(self):
-        """🔐 Authenticate user and get JWT token"""
+        """🔐 Authenticate user and get JWT token with enhanced user info"""
         username = request.json.get("username")
         password = request.json.get("password")
+        
         user = USERS.get(username)
-        if not user or user["password"] != password:
+        if not user or user.password != password:
+            logger.warning(f"🚨 Failed login attempt for user: {username}")
             api.abort(401, "Invalid credentials")
-        token = create_access_token(identity=username, additional_claims={"role": user["role"]})
-        return {"access_token": token}
+        
+        # Record successful login
+        user.record_login()
+        
+        # Create JWT with enhanced claims
+        token = create_access_token(
+            identity=username, 
+            additional_claims={
+                "role": user.role,
+                "full_name": user.full_name,
+                "permissions": user.permissions,
+                "login_time": user.last_login.isoformat()
+            }
+        )
+        
+        # Log successful authentication
+        dashboard_data.add_activity(
+            'auth', 
+            f"🔐 User {user.full_name} ({user.role}) logged in",
+            'info',
+            user.permissions['emoji']
+        )
+        
+        return {
+            "access_token": token,
+            "user_info": {
+                "username": user.username,
+                "full_name": user.full_name,
+                "role": user.role,
+                "permissions": user.permissions,
+                "last_login": user.last_login.isoformat()
+            }
+        }
 
 @app.route("/")
 def home():
     """Home page redirect to dashboard"""
-    return render_template('dashboard.html', stats=dashboard_data.get_stats())
+    return redirect(url_for('dashboard'))
 
 @app.route("/dashboard")
 def dashboard():
     """Helix Dashboard - Real-time monitoring interface"""
     try:
+        # Get comprehensive dashboard data
         stats = dashboard_data.get_stats()
-        return render_template('dashboard.html', stats=stats)
+        dashboard_full_data = dashboard_data.get_dashboard_data()
+        
+        # Prepare template context
+        context = {
+            'stats': stats,
+            'dashboard_data': dashboard_full_data,
+            'activities': dashboard_full_data.get('recent_activities', []),
+            'current_processing': dashboard_full_data.get('current_processing', {}),
+            'recent_files': [],  # This would come from a database in production
+            'system_info': {
+                'memory_usage': '45%',
+                'cpu_usage': '23%',
+                'uptime': '99.9%'
+            }
+        }
+        
+        return render_template('pages/dashboard.html', **context)
+        
     except Exception as e:
         logger.error(f"Dashboard error: {e}")
         # Fallback to a simple HTML page if template fails
@@ -213,17 +355,18 @@ def dashboard():
         <head><title>🏦 Helix Dashboard</title></head>
         <body style="font-family: Arial; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
             <h1>🏦 Helix Bank Processing Dashboard</h1>
-            <p>📊 Total Files: {stats.get('total_files', 0)}</p>
-            <p>💰 Total Transactions: {stats.get('total_transactions', 0)}</p>
-            <p>✅ Success Rate: {stats.get('success_rate', 100)}%</p>
-            <p>🕒 Last Processed: {stats.get('last_processed', 'Never')}</p>
-            <p>⚡ Uptime: {stats.get('uptime', 'N/A')}</p>
+            <p>📊 Total Files: {stats.get('total_files', 0) if 'stats' in locals() else 0}</p>
+            <p>💰 Total Transactions: {stats.get('total_transactions', 0) if 'stats' in locals() else 0}</p>
+            <p>✅ Success Rate: {stats.get('success_rate', 100) if 'stats' in locals() else 100}%</p>
+            <p>🕒 Last Processed: {stats.get('last_processed', 'Never') if 'stats' in locals() else 'Never'}</p>
+            <p>⚡ Uptime: {stats.get('uptime', 'N/A') if 'stats' in locals() else 'N/A'}</p>
             <h2>🔧 System Status</h2>
             <p>✅ SFTP Polling: Active</p>
             <p>✅ File Processing: Ready</p>
             <p>✅ API Endpoints: Online</p>
             <hr>
             <p><strong>Template Error:</strong> {e}</p>
+            <p><strong>Solution:</strong> Using fallback template. Please check template structure.</p>
         </body>
         </html>
         """

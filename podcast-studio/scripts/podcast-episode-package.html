@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wins & Wrecks - Episode Prep Package: Evangelia Kallivretaki</title>
+    <style>
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            line-height: 1.6; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333; 
+        }
+        
+        .page { 
+            width: 21cm; 
+            min-height: 29.7cm; 
+            margin: 1cm auto; 
+            background: white; 
+            padding: 2.5cm; 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); 
+            box-sizing: border-box; 
+            page-break-after: always;
+            position: relative;
+        }
+        
+        .page:last-child { page-break-after: avoid; }
+        
+        /* Print styles for PDF generation */
+        @media print {
+            body { background: white; }
+            .page { 
+                margin: 0; 
+                box-shadow: none; 
+                page-break-after: always;
+            }
+        }
+        
+        /* Header styling */
+        .podcast-header {
+            text-align: center;
+            margin-bottom: 3em;
+            position: relative;
+        }
+        
+        .podcast-logo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5em;
+            border-radius: 20px;
+            margin-bottom: 1em;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .podcast-title {
+            font-size: 2.5em;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        
+        .podcast-subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin: 0.5em 0 0 0;
+            letter-spacing: 1px;
+        }
+        
+        /* Episode specific styling */
+        .episode-title {
+            font-size: 2.2em;
+            color: #2c3e50;
+            text-align: center;
+            margin: 2em 0 1em 0;
+            line-height: 1.2;
+            font-weight: 700;
+        }
+        
+        .guest-name {
+            font-size: 1.8em;
+            color: #e74c3c;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 0.5em;
+        }
+        
+        .guest-title {
+            text-align: center;
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin-bottom: 2em;
+            font-style: italic;
+        }
+        
+        /* Guest photo styling */
+        .guest-photo {
+            text-align: center;
+            margin: 2em 0;
+        }
+        
+        .guest-photo img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 5px solid #667eea;
+            object-fit: cover;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .guest-photo-placeholder {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 5px solid #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3em;
+            font-weight: bold;
+        }
+        
+        /* Content styling */
+        h1, h2, h3 { 
+            color: #2c3e50; 
+            margin-top: 2em;
+            margin-bottom: 1em;
+        }
+        
+        h2 { 
+            font-size: 1.6em; 
+            border-left: 5px solid #667eea;
+            padding-left: 1em;
+            background: #f8f9fa;
+            padding: 0.8em 0 0.8em 1em;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        h3 {
+            font-size: 1.3em;
+            color: #e74c3c;
+            margin-top: 1.5em;
+        }
+        
+        p { 
+            margin-bottom: 1.2em; 
+            text-align: justify;
+            font-size: 1.05em;
+        }
+        
+        ul, ol { 
+            margin-left: 1.5em; 
+            margin-bottom: 1.5em;
+        }
+        
+        li {
+            margin-bottom: 0.8em;
+            line-height: 1.5;
+        }
+        
+        /* Contact and social styling */
+        .contact-section {
+            background: #f8f9fa;
+            padding: 2em;
+            border-radius: 15px;
+            margin: 2em 0;
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .contact-info a { 
+            color: #667eea; 
+            text-decoration: none; 
+            font-weight: 600;
+        }
+        
+        .contact-info a:hover { 
+            text-decoration: underline; 
+            color: #e74c3c;
+        }
+        
+        /* Call to action styling */
+        .call-to-action {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2em;
+            border-radius: 15px;
+            text-align: center;
+            margin: 2em 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .call-to-action p {
+            margin: 0;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        /* Footer styling */
+        .footer { 
+            text-align: center; 
+            margin-top: 3em; 
+            font-size: 0.9em; 
+            color: #7f8c8d;
+            border-top: 2px solid #ecf0f1;
+            padding-top: 1em;
+        }
+        
+        /* Intro text special styling */
+        .intro-text {
+            font-size: 1.1em;
+            line-height: 1.8;
+            background: #f8f9fa;
+            padding: 2em;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            margin: 2em 0;
+        }
+        
+        /* Quote styling */
+        .wisdom-quote {
+            font-style: italic;
+            font-size: 1.2em;
+            background: #e8f4fd;
+            padding: 1.5em;
+            border-left: 5px solid #3498db;
+            border-radius: 0 10px 10px 0;
+            margin: 2em 0;
+            position: relative;
+        }
+        
+        .wisdom-quote::before {
+            content: '"';
+            font-size: 4em;
+            color: #3498db;
+            position: absolute;
+            top: -0.2em;
+            left: 0.2em;
+            font-family: serif;
+        }
+        
+        /* Episode artwork placeholder */
+        .episode-artwork {
+            text-align: center;
+            margin: 2em 0;
+        }
+        
+        .episode-artwork-placeholder {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PAGE 1: COVER PAGE -->
+    <div class="page">
+        <div class="podcast-header">
+            <div class="podcast-logo">
+                <h1 class="podcast-title">Wins & Wrecks</h1>
+                <p class="podcast-subtitle">The Business Stories Podcast</p>
+            </div>
+        </div>
+        
+        <div class="episode-artwork">
+            <!-- Replace this placeholder with actual episode artwork -->
+            <div class="episode-artwork-placeholder">
+                🎙️<br>
+                EPISODE ARTWORK<br>
+                <small>(300x300px)</small>
+            </div>
+        </div>
+        
+        <h1 class="episode-title">From Lab to Launch: A Medical Affairs Leader's Journey Through Pharma's Biggest Wins & Wrecks</h1>
+        
+        <div class="guest-photo">
+            <!-- Replace this placeholder with Evangelia's professional photo -->
+            <div class="guest-photo-placeholder">EK</div>
+        </div>
+        
+        <p class="guest-name">Dr. Evangelia Kallivretaki</p>
+        <p class="guest-title">Medical Affairs Leader • Biopharmaceuticals Expert</p>
+
+        <div class="intro-text">
+            <p><strong>Thank you for considering being our guest on Wins & Wrecks.</strong> This podcast is dedicated to the real stories behind professional success—not just the triumphs, but the crucial lessons learned from setbacks. Your career, bridging rigorous science with business strategy to launch groundbreaking treatments, is an inspiring narrative. We believe your experience will provide invaluable insights for our audience, and we would be honored to share your story.</p>
+        </div>
+
+        <div class="footer">Episode Prep Package | Confidential Discussion Material</div>
+    </div>
+
+    <!-- PAGE 2: TALKING POINTS & QUESTIONS -->
+    <div class="page">
+        <h2>🎯 Guest Bio</h2>
+        <p>Dr. Evangelia Kallivretaki is a seasoned Medical Affairs leader with over 15 years in biopharmaceuticals, specializing in bridging science and strategy across gastroenterology, neuroscience, and rare diseases. From launching entire ADHD portfolios to leading global teams at Takeda, she combines a Ph.D. in Biology with strategic business acumen to translate complex science into patient impact.</p>
+
+        <h2>🏆 Thematic Prompts</h2>
+        <p>To make our conversation engaging, we'll focus on a few key stories. Feel free to refine these or suggest others.</p>
+        
+        <h3>💪 Win Stories:</h3>
+        <ul>
+            <li><strong>European ADHD Portfolio Launch:</strong> The strategic orchestration behind launching Shire's entire ADHD portfolio across Europe (methylphenidate, lisdexamfetamine, guanfacine).</li>
+            <li><strong>Platform Building at Takeda:</strong> Building and leading Takeda's first-ever Gastroenterology Scientific Communications Platform, unifying a complex portfolio into a cohesive strategy.</li>
+        </ul>
+        
+        <h3>💥 Wreck Stories:</h3>
+        <ul>
+            <li><strong>Regulatory Roadblocks:</strong> A high-stakes evidence generation plan that hit unexpected regulatory roadblocks during a European launch, forcing rapid pivot strategies.</li>
+            <li><strong>Congress Investment Miss:</strong> A major congress presence investment that didn't deliver the expected stakeholder engagement or ROI—and the hard lessons learned.</li>
+        </ul>
+
+        <h2>🔍 Deep-Dive Interview Questions</h2>
+        <p>We'll dive into the "how" behind your stories with questions like:</p>
+        <ol>
+            <li><strong>Portfolio Launch Strategy:</strong> When you're tasked with launching a complex portfolio like ADHD across multiple European markets, what's your first strategic framework for prioritizing countries and evidence gaps?</li>
+            <li><strong>Team Scaling:</strong> You've built multiple high-performing teams—can you walk us through a specific time when you had to rapidly scale team capabilities for a new therapeutic area?</li>
+            <li><strong>Balancing Act:</strong> In medical affairs, how do you balance the tension between scientific rigor and commercial timeline pressures when developing evidence generation strategies?</li>
+            <li><strong>Stakeholder Adaptation:</strong> You've worked across rare diseases, neuroscience, and gastroenterology—how do you adapt your stakeholder engagement approach between different KOL communities?</li>
+            <li><strong>ROI Decision Making:</strong> What's your decision-making process for determining which medical congresses and symposia will actually move the needle versus just maintaining presence?</li>
+        </ol>
+
+        <h2>🛠️ Key Frameworks/Tips to Discuss</h2>
+        <p>We'll also ask for a few actionable takeaways for our audience, such as:</p>
+        <ul>
+            <li><strong>Evidence Gap Analysis Matrix:</strong> A systematic approach to prioritizing unmet medical needs versus competitive landscape and regulatory requirements.</li>
+            <li><strong>Cross-Functional Alignment Canvas:</strong> A framework for aligning medical affairs objectives with commercial and regulatory goals.</li>
+            <li><strong>KOL Engagement Impact Scoring:</strong> A methodology for measuring and optimizing thought leader relationships based on influence, reach, and strategic value.</li>
+        </ul>
+    </div>
+
+    <!-- PAGE 3: OUTRO & NEXT STEPS -->
+    <div class="page">
+        <h2>🎉 Episode Takeaways & Guest Spotlight</h2>
+        <p>Thank you, Dr. Kallivretaki, for sharing your incredible journey with us. Your ability to translate complex science into real patient impact is a true masterclass in strategic leadership.</p>
+
+        <div class="wisdom-quote">
+            <p><strong>A Final Word of Wisdom:</strong> Our key takeaway from your story: in the high-stakes world of medical innovation, the biggest breakthroughs often come from the ability to navigate a wreck, not just celebrate a win. Your resilience and strategic mindset in the face of roadblocks are what truly drive meaningful progress.</p>
+        </div>
+
+        <div class="contact-section">
+            <h2>🤝 Connect & Continue the Conversation</h2>
+            <p><strong>The Guest:</strong> Follow Dr. Kallivretaki's insights and connect with her directly:</p>
+            <ul class="contact-info">
+                <li><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/evangeliakallivretaki">linkedin.com/in/evangeliakallivretaki</a></li>
+                <li><strong>Email:</strong> <a href="mailto:evangelia@email.com">evangelia@email.com</a> <em>(placeholder)</em></li>
+            </ul>
+
+            <p><strong>The Podcast:</strong> Don't let the conversation end here:</p>
+            <ul class="contact-info">
+                <li>🎙️ <strong>Subscribe to Wins & Wrecks</strong> for more honest stories about triumph and resilience</li>
+                <li>📢 <strong>Share this episode</strong> with your network and join the discussion</li>
+                <li>💼 <strong>Follow us on LinkedIn:</strong> <a href="https://linkedin.com/company/wins-and-wrecks-podcast">linkedin.com/company/wins-and-wrecks-podcast</a></li>
+            </ul>
+        </div>
+
+        <div class="call-to-action">
+            <p>🎯 Ready to record? Let's schedule a brief face-to-face meeting to finalize the recording date and discuss logistics!</p>
+        </div>
+
+        <div class="footer">
+            <p><strong>Contact:</strong> [Your Name] | [Your Email] | [Your Phone]</p>
+            <p><em>Thank you for considering Wins & Wrecks. We're excited to share your story!</em></p>
+        </div>
+    </div>
+
+</body>
+</html>
