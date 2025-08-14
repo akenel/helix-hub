@@ -44,6 +44,9 @@ Thumbs.db
 
 # ===== Docker =====
 .dockerignore
+# Docker Desktop installer files (large)
+docker-desktop-*.deb
+*.deb
 
 # ===== Environment & Secrets =====
 .env
