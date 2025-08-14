@@ -134,6 +134,7 @@ test_container_status "helix-hub-helix-core-1" "Helix Core Application"
 test_container_status "helix-hub-ollama-1" "Ollama AI Service"
 test_container_status "helix-hub-postgres-1" "PostgreSQL Database"
 test_container_status "helix-hub-sftp-demo-1" "SFTP Demo Service"
+test_container_status "helix-hub-filebrowser-1" "FileBrowser Web UI"
 
 # 2. Network Connectivity Tests
 echo -e "${YELLOW}🌐 NETWORK CONNECTIVITY TESTS${NC}"
@@ -152,6 +153,7 @@ test_http_endpoint "http://localhost:5000/dashboard" 200 "Helix Core Dashboard D
 test_http_endpoint "http://localhost:11434" 200 "Ollama Direct Access"
 test_http_endpoint "http://localhost:11434/api/tags" 200 "Ollama API Tags Direct"
 test_http_endpoint "http://localhost:8080/dashboard/" 200 "Traefik Dashboard HTTP"
+test_http_endpoint "http://localhost:8082" 200 "FileBrowser Direct Access"
 
 # 4. HTTPS Proxy Tests (through Traefik)
 echo -e "${YELLOW}🔐 HTTPS PROXY TESTS${NC}"
@@ -161,6 +163,8 @@ test_http_endpoint "https://helix.local:8443" 302 "Helix Core HTTPS (redirect)"
 test_http_endpoint "https://helix.local:8443/dashboard" 200 "Helix Core Dashboard HTTPS"
 test_http_endpoint "https://ollama.helix.local:8443" 200 "Ollama HTTPS"
 test_http_endpoint "https://ollama.helix.local:8443/api/tags" 200 "Ollama API HTTPS"
+test_http_endpoint "https://files.helix.local:8443" 200 "FileBrowser HTTPS"
+test_http_endpoint "https://sftp.helix.local:8443" 200 "SFTP Web Interface HTTPS (FileBrowser)"
 
 # 5. Certificate and SSL Tests
 echo -e "${YELLOW}🔐 SSL/TLS CERTIFICATE TESTS${NC}"
@@ -190,7 +194,7 @@ echo
 echo -e "${YELLOW}🌍 DNS/HOSTS CONFIGURATION TESTS${NC}"
 echo "=============================================="
 echo -e "${CYAN}🔍 Testing: /etc/hosts entries${NC}"
-required_hosts=("helix.local" "traefik.helix.local" "ollama.helix.local" "sftp.helix.local")
+required_hosts=("helix.local" "traefik.helix.local" "ollama.helix.local" "sftp.helix.local" "files.helix.local")
 for host in "${required_hosts[@]}"; do
     if grep -q "$host" /etc/hosts; then
         print_status "PASS" "/etc/hosts entry for $host exists"

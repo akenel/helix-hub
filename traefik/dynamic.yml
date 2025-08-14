@@ -24,12 +24,20 @@ http:
       service: ollama-service
       tls: {}
     
-    # SFTP (future web interface)
+    # FileBrowser - Web-based file manager
+    files-router:
+      rule: "Host(`files.helix.local`)"
+      entryPoints:
+        - websecure
+      service: files-service
+      tls: {}
+    
+    # SFTP (legacy - now using FileBrowser)
     sftp-router:
       rule: "Host(`sftp.helix.local`)"
       entryPoints:
         - websecure
-      service: sftp-service
+      service: files-service
       tls: {}
 
   services:
@@ -42,6 +50,11 @@ http:
       loadBalancer:
         servers:
           - url: "http://ollama:11434"
+    
+    files-service:
+      loadBalancer:
+        servers:
+          - url: "http://filebrowser:80"
     
     sftp-service:
       loadBalancer:
