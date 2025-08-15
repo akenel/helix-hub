@@ -1,0 +1,92 @@
+# Kong API Gateway Configuration for Banking Services
+
+# Banking API Service
+services:
+  - name: helix-banking-api
+    url: http://helix-core:5000
+    protocol: http
+    port: 5000
+    path: /
+    
+  - name: vault-api
+    url: http://vault:8200
+    protocol: http
+    port: 8200
+    path: /
+    
+  - name: keycloak-api
+    url: http://keycloak:8080
+    protocol: http
+    port: 8080
+    path: /
+
+# API Routes
+routes:
+  - name: banking-dashboard
+    service: helix-banking-api
+    hosts:
+      - api.helix.local
+    paths:
+      - /dashboard
+    methods:
+      - GET
+      - POST
+    
+  - name: banking-upload
+    service: helix-banking-api
+    hosts:
+      - api.helix.local
+    paths:
+      - /upload
+    methods:
+      - POST
+    
+  - name: vault-secrets
+    service: vault-api
+    hosts:
+      - api.helix.local
+    paths:
+      - /v1/helix
+    methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+
+# Plugins for Banking Compliance
+plugins:
+  - name: rate-limiting
+    config:
+      minute: 1000
+      hour: 10000
+      day: 100000
+      policy: local
+      
+  - name: key-auth
+    config:
+      key_names:
+        - X-API-Key
+        
+  - name: request-transformer
+    config:
+      add:
+        headers:
+          - "X-Banking-Compliance: PCI-DSS"
+          - "X-Audit-Required: true"
+          
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "X-Response-Time: {{latency}}"
+          - "X-Service-Version: helix-enterprise-v2.0"
+
+# Consumer for API Key Authentication
+consumers:
+  - username: helix-banking-client
+    custom_id: banking-system-001
+    
+# API Keys
+keyauth_credentials:
+  - consumer: helix-banking-client
+    key: helix-banking-2025-enterprise

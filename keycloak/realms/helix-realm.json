@@ -1,0 +1,84 @@
+{
+  "realm": "helix",
+  "enabled": true,
+  "displayName": "Helix Banking Enterprise",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "failureFactor": 5,
+  "clients": [
+    {
+      "clientId": "helix-dashboard",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": [
+        "https://helix.local:8443/*",
+        "https://monitoring.helix.local:8443/*",
+        "https://files.helix.local:8443/*"
+      ],
+      "webOrigins": [
+        "https://helix.local:8443",
+        "https://monitoring.helix.local:8443", 
+        "https://files.helix.local:8443"
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "banking-admin",
+        "description": "Full access to banking systems"
+      },
+      {
+        "name": "banking-user",
+        "description": "Standard banking user access"
+      },
+      {
+        "name": "monitoring-admin",
+        "description": "Access to monitoring dashboards"
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@helix.local",
+      "firstName": "Banking",
+      "lastName": "Administrator",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "banking123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["banking-admin", "monitoring-admin"]
+    },
+    {
+      "username": "angel",
+      "enabled": true,
+      "email": "angel@helix.local",
+      "firstName": "Angel",
+      "lastName": "Dimitri",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "coffee123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["banking-admin", "monitoring-admin"]
+    }
+  ]
+}

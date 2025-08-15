@@ -1,0 +1,94 @@
+# Prometheus Configuration for Helix Hub Enterprise Monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          environment: 'helix-enterprise'
+
+  # Node Exporter - System metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'system-metrics'
+          environment: 'helix-enterprise'
+
+  # cAdvisor - Container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          service: 'container-metrics'
+          environment: 'helix-enterprise'
+
+  # Helix Core Application
+  - job_name: 'helix-core'
+    static_configs:
+      - targets: ['helix-core:5000']
+        labels:
+          service: 'banking-application'
+          environment: 'helix-enterprise'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Traefik Reverse Proxy
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['traefik:8080']
+        labels:
+          service: 'reverse-proxy'
+          environment: 'helix-enterprise'
+    metrics_path: '/metrics'
+
+  # PostgreSQL Database
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+        labels:
+          service: 'database'
+          environment: 'helix-enterprise'
+
+  # Vault Secrets Management
+  - job_name: 'vault'
+    static_configs:
+      - targets: ['vault:8200']
+        labels:
+          service: 'secrets-management'
+          environment: 'helix-enterprise'
+    metrics_path: '/v1/sys/metrics'
+    params:
+      format: ['prometheus']
+
+  # Keycloak Identity Provider
+  - job_name: 'keycloak'
+    static_configs:
+      - targets: ['keycloak:8080']
+        labels:
+          service: 'identity-provider'
+          environment: 'helix-enterprise'
+    metrics_path: '/auth/realms/helix/metrics'
+
+  # FileBrowser File Management
+  - job_name: 'filebrowser'
+    static_configs:
+      - targets: ['filebrowser:8082']
+        labels:
+          service: 'file-management'
+          environment: 'helix-enterprise'
