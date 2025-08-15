@@ -1,0 +1,174 @@
+{
+  "name": "🐕‍🦺 Bernly's Career Rescue Protocol",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rescue-alert",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "rescue-webhook",
+      "name": "🚨 Rescue Alert Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "webhookId": "bernly-rescue-webhook"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2",
+        "options": {
+          "baseURL": "http://ollama:11434"
+        },
+        "prompt": "You are Bernly, a Swiss St. Bernard rescue dog with 7 years of zero-miss rescue experience. Someone is having a career crisis. Here's their situation: {{ $json.crisis_description }}\n\nProvide a 3-bark rescue plan:\n1. IMMEDIATE ACTION (what to do in next 5 minutes)\n2. STABILIZATION (next steps to get to safety) \n3. RECOVERY (long-term career rescue plan)\n\nKeep it practical, encouraging, and remember: 'Real lives, not real dollars!' 🐕‍🦺"
+      },
+      "id": "bernly-brain",
+      "name": "🧠 Bernly's AI Brain",
+      "type": "n8n-nodes-base.ollama",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rescue-id",
+              "name": "rescue_id",
+              "value": "RESCUE-{{ $now.format('YYYY-MM-DD-HH-mm-ss') }}",
+              "type": "string"
+            },
+            {
+              "id": "rescue-plan",
+              "name": "bernly_rescue_plan",
+              "value": "{{ $json.response }}",
+              "type": "string"
+            },
+            {
+              "id": "success-rate",
+              "name": "success_probability",
+              "value": "99.9999%",
+              "type": "string"
+            },
+            {
+              "id": "rescue-time",
+              "name": "estimated_rescue_time",
+              "value": "5 minutes",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "rescue-package",
+      "name": "📦 Package Rescue Plan",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": {
+          "rescue_status": "BERNLY DEPLOYED",
+          "rescue_id": "{{ $json.rescue_id }}",
+          "rescue_plan": "{{ $json.bernly_rescue_plan }}",
+          "success_rate": "{{ $json.success_probability }}",
+          "eta": "{{ $json.estimated_rescue_time }}",
+          "message": "🐕‍🦺 Bernly is on the way! Stay calm, help is coming!",
+          "next_steps": "Wait for Bernly's barking commands and follow the 3-step rescue protocol.",
+          "emergency_contact": "Base Camp 1 (sunny location) - better than Base Camp 2 (windy)"
+        }
+      },
+      "id": "rescue-response",
+      "name": "🚁 Send Rescue Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [800, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "log-entry",
+              "name": "rescue_log",
+              "value": "RESCUE LOG: {{ $json.rescue_id }} - Crisis: {{ $('🚨 Rescue Alert Webhook').item.json.crisis_description }} | Bernly Response: {{ $json.bernly_rescue_plan }} | Timestamp: {{ $now }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "mission-log",
+      "name": "📝 Mission Log",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [600, 500]
+    }
+  ],
+  "connections": {
+    "🚨 Rescue Alert Webhook": {
+      "main": [
+        [
+          {
+            "node": "🧠 Bernly's AI Brain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Bernly's AI Brain": {
+      "main": [
+        [
+          {
+            "node": "📦 Package Rescue Plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📦 Package Rescue Plan": {
+      "main": [
+        [
+          {
+            "node": "🚁 Send Rescue Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📝 Mission Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bernly-v1.0.0",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "bernly-rescue-protocol",
+  "tags": [
+    {
+      "id": "mountain-rescue",
+      "name": "Mountain Rescue"
+    },
+    {
+      "id": "career-help",
+      "name": "Career Help"
+    },
+    {
+      "id": "ollama-test",
+      "name": "Ollama Test"
+    }
+  ]
+}
