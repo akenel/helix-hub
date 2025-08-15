@@ -360,7 +360,7 @@ if [ $FAILED_TESTS -eq 0 ]; then
     echo -e "${YELLOW}│    └─ Root Token:     ${GREEN}myroot${YELLOW}                                │${NC}"
     echo -e "${YELLOW}│ 📁 FILE MANAGER:      ${BLUE}https://files.helix.local:8443${YELLOW}        │${NC}"
     echo -e "${YELLOW}│    └─ Credentials:    ${GREEN}admin / admin${YELLOW}                         │${NC}"
-    echo -e "${YELLOW}│ 🤖 OLLAMA AI:         ${BLUE}https://ollama.helix.local:8443${YELLOW}       │${NC}"
+    echo -e "${YELLOW}│ 🤖 OLLAMA AI:         ${BLUE}https://ollama.helix.local:8443${YELLOW}        │${NC}"
     echo -e "${YELLOW}└─────────────────────────────────────────────────────────────┘${NC}"
     echo
     echo -e "${PURPLE}🎯 WILHELM TELL'S NEXT STEPS (Swiss Precision Guide):${NC}"
