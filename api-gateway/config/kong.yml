@@ -23,7 +23,9 @@ services:
 # API Routes
 routes:
   - name: banking-dashboard
+    url: /dashboard
     service: helix-banking-api
+
     hosts:
       - api.helix.local
     paths:

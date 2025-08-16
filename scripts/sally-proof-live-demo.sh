@@ -77,24 +77,40 @@ echo
 echo -e "${PURPLE}🌊 LIVE NETWORK ACTIVITY${NC}"
 echo -e "${YELLOW}🔍 Real-time network I/O fluctuations${NC}"
 echo
-netstat -i | grep -E "(Iface|docker|eth)" | while IFS= read -r line; do
-    if [[ $line == *"Iface"* ]]; then
-        echo -e "${GREEN}$line${NC}"
-    else
+if command -v netstat >/dev/null 2>&1; then
+    netstat -i | grep -E "(Iface|docker|eth)" | while IFS= read -r line; do
+        if [[ $line == *"Iface"* ]]; then
+            echo -e "${GREEN}$line${NC}"
+        else
+            echo -e "${CYAN}🌐 $line${NC}"
+        fi
+    done
+elif command -v ss >/dev/null 2>&1; then
+    # ss doesn't show the same 'Iface' header, provide a compact fallback
+    ss -i | sed -n '1,200p' | while IFS= read -r line; do
         echo -e "${CYAN}🌐 $line${NC}"
-    fi
-done
+    done
+else
+    echo -e "${YELLOW}⚠️  netstat/ss not installed — skipping detailed interface list${NC}"
+fi
 
 echo
 echo -e "${PURPLE}💾 LIVE DISK I/O ACTIVITY${NC}"
 echo -e "${YELLOW}📊 Docker volumes and container filesystem activity${NC}"
-iostat -x 1 1 | tail -n +4 | while IFS= read -r line; do
-    if [[ $line == *"Device"* ]]; then
-        echo -e "${GREEN}$line${NC}"
-    elif [[ $line != "" ]]; then
+if command -v iostat >/dev/null 2>&1; then
+    iostat -x 1 1 | tail -n +4 | while IFS= read -r line; do
+        if [[ $line == *"Device"* ]]; then
+            echo -e "${GREEN}$line${NC}"
+        elif [[ $line != "" ]]; then
+            echo -e "${BLUE}💿 $line${NC}"
+        fi
+    done
+else
+    echo -e "${YELLOW}⚠️  iostat not installed — showing disk usage instead:${NC}"
+    df -h | sed -n '1,20p' | while IFS= read -r line; do
         echo -e "${BLUE}💿 $line${NC}"
-    fi
-done
+    done
+fi
 
 echo
 echo -e "${PURPLE}🎯 TUNNEL THROUGH TEST - Real API Responses${NC}"
@@ -102,9 +118,16 @@ echo -e "${YELLOW}🚀 Making live HTTP calls - can't fake these responses!${NC}
 echo
 
 echo -e "${CYAN}🔍 Vault Health (with cluster ID):${NC}"
-vault_response=$(curl -s http://localhost:8200/v1/sys/health)
-if [ $? -eq 0 ]; then
-    echo "$vault_response" | jq -r '"🔐 Cluster ID: " + .cluster_id + " | Sealed: " + (.sealed|tostring) + " | Time: " + now'
+vault_response=$(curl -s http://localhost:8200/v1/sys/health) || vault_response=""
+if [ -n "$vault_response" ]; then
+    if command -v jq >/dev/null 2>&1; then
+        cluster_id=$(echo "$vault_response" | jq -r '.cluster_id // "N/A"')
+        sealed=$(echo "$vault_response" | jq -r '.sealed // "unknown"')
+        echo "🔐 Cluster ID: $cluster_id | Sealed: $sealed | Time: $(date '+%T')"
+    else
+        # jq not available — print raw response (safer than failing)
+        echo "$vault_response"
+    fi
 else
     echo -e "${RED}❌ Vault unreachable${NC}"
 fi

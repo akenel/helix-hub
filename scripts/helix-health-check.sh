@@ -27,19 +27,6 @@ while [[ $# -gt 0 ]]; do
             LINKS_ONLY=true
             shift
             ;;
-        --help|-h)
-            echo "🎯 Wilhelm Tell Health Check - Swiss Precision Options:"
-            echo "  --silent, -s    Silent mode (score only)"
-            echo "  --debug, -d     Debug mode (extra details)"
-            echo "  --links, -l     Quick links only"
-            echo "  --help, -h      Show this Swiss manual"
-            echo
-            echo "🏔️ Examples:"
-            echo "  ./scripts/helix-health-check.sh           # Full Wilhelm Tell precision"
-            echo "  ./scripts/helix-health-check.sh --silent  # Just the score"
-            echo "  ./scripts/helix-health-check.sh --links   # Quick access links"
-            exit 0
-            ;;
         *)
             echo "Unknown option: $1"
             echo "Use --help for Wilhelm Tell guidance"
@@ -102,6 +89,7 @@ test_http_endpoint() {
             fi
         else
             print_status "FAIL" "$description - Expected HTTP $expected_status, got $http_code"
+            echo "   URL: $url"
         fi
     else
         print_status "FAIL" "$description - Connection failed"
@@ -117,7 +105,7 @@ test_container_status() {
     echo -e "${CYAN}🐳 Testing: $description${NC}"
     
     if docker ps --format "table {{.Names}}\t{{.Status}}" | grep -q "$container_name.*Up"; then
-        uptime=$(docker ps --format "table {{.Names}}\t{{.Status}}" | grep "$container_name" | awk '{print $3,$4,$5}')
+        uptime=$(docker ps --format "table {{.Names}}\t{{.Status}}" | grep "$container_name" | awk '{print $3,$4,$5,$6}')
         print_status "PASS" "$description - Container running ($uptime)"
     else
         print_status "FAIL" "$description - Container not running"
@@ -165,23 +153,56 @@ if [ "$LINKS_ONLY" = "true" ]; then
     echo -e "${PURPLE}🔗 HELIX HUB QUICK ACCESS LINKS${NC}"
     echo -e "${YELLOW}┌─────────────────────────────────────────────────────────────┐${NC}"
     echo -e "${YELLOW}│ 🏦 MAIN DASHBOARD:    ${BLUE}https://helix.local:8443${YELLOW}              │${NC}"
+    echo -e "${YELLOW}│    └─ Helix Live:     ${BLUE}https://helix.local:8443/dashboard${YELLOW}        │${NC}"
     echo -e "${YELLOW}│    └─ What to do:     ${CYAN}Check file upload & processing${YELLOW}        │${NC}"
-    echo -e "${YELLOW}│ 🌐 TRAEFIK CONSOLE:   ${BLUE}https://traefik.helix.local:8443${YELLOW}      │${NC}"
+    echo -e "${YELLOW}│    └─ Troubleshooting: ${CYAN}Check logs and container status${YELLOW}      │${NC}"
+    echo -e "${YELLOW}│    └─ Tips:            ${CYAN}Use the CLI for advanced operations${YELLOW}   │${NC}"
+    echo -e "${YELLOW}│    └─ Workflow 1:     ${CYAN}Description of Workflow 1${YELLOW}            │${NC}"
+    echo -e "${YELLOW}│    └─ Workflow 2:     ${CYAN}Description of Workflow 2${YELLOW}            │${NC}"
+    echo -e "${YELLOW}│    └─ Workflow 3:     ${CYAN}Description of Workflow 3${YELLOW}            │${NC}"
+    echo -e "${YELLOW}│    └─ Workflow 4:     ${CYAN}Description of Workflow 4${YELLOW}            │${NC}"
+    echo -e "${YELLOW}│ 🌐 TRAEFIK DASHBOARD: ${BLUE}https://traefik.helix.local:8443${YELLOW}      │${NC}"
     echo -e "${YELLOW}│    └─ What to check:  ${CYAN}SSL cert status & routing rules${YELLOW}       │${NC}"
     echo -e "${YELLOW}│ 🦁 KEYCLOAK ADMIN:    ${BLUE}http://localhost:8081${YELLOW}                 │${NC}"
     echo -e "${YELLOW}│    └─ Credentials:    ${GREEN}admin / admin123${YELLOW}                      │${NC}"
+
     echo -e "${YELLOW}│    └─ Lion's Den:     ${CYAN}Realms → helix → Users & Roles${YELLOW}        │${NC}"
+    echo -e "${YELLOW}│    └─ Admin Console:  ${CYAN}Manage users and roles${YELLOW}                │${NC}"
+    echo -e "${YELLOW}│    └─ Client ID:      ${GREEN}helix-client${YELLOW}                          │${NC}"
+    echo -e "${YELLOW}│    └─ Client Secret:  ${GREEN}mysecret${YELLOW}                             │${NC}"
+
     echo -e "${YELLOW}│ 🔐 VAULT CONSOLE:     ${BLUE}http://localhost:8200${YELLOW}                 │${NC}"
     echo -e "${YELLOW}│    └─ Root Token:     ${GREEN}myroot${YELLOW}                                │${NC}"
     echo -e "${YELLOW}│    └─ Treasure Hunt:  ${CYAN}Secrets → secret/ → Add new KV${YELLOW}        │${NC}"
+    echo -e "${YELLOW}│    └─ Vault UI:       ${BLUE}http://localhost:8200/ui${YELLOW}               │${NC}"
+
     echo -e "${YELLOW}│ 📁 FILE MANAGER:      ${BLUE}https://files.helix.local:8443${YELLOW}        │${NC}"
     echo -e "${YELLOW}│    └─ Credentials:    ${GREEN}admin / admin${YELLOW}                         │${NC}"
     echo -e "${YELLOW}│    └─ Swiss Quality:  ${CYAN}Upload MT940/BAI2/CSV files${YELLOW}           │${NC}"
+    echo -e "${YELLOW}│    └─ File Management: ${CYAN}Organize and manage your files${YELLOW}       │${NC}"
     echo -e "${YELLOW}│ 🤖 OLLAMA AI:         ${BLUE}https://ollama.helix.local:8443${YELLOW}       │${NC}"
     echo -e "${YELLOW}│    └─ AI Power:       ${CYAN}curl /api/generate -d model:llama3.2${YELLOW}  │${NC}"
+    echo -e "${YELLOW}│    └─ Angel's Wisdom: ${CYAN}Test with Angel prompt${YELLOW}                │${NC}"
+    echo -e "${YELLOW}│    └─ Ollama's Insight: ${CYAN}Explore with Ollama's capabilities${YELLOW}   │${NC}"
+    echo -e "${YELLOW}│    └─ FileBrowser's Edge: ${CYAN}Navigate with FileBrowser's features${YELLOW} │${NC}"
+    echo -e "${YELLOW}│    └─ Database's Depth: ${CYAN}Dive into the database intricacies${YELLOW}   │${NC}"
+    echo -e "${YELLOW}│    └─ Traefik's Path: ${CYAN}Explore with Traefik's routing capabilities${YELLOW} │${NC}"
+    echo -e "${YELLOW}│    └─ Core's Essence: ${CYAN}Understand the core functionalities${YELLOW}       │${NC}"
+    echo -e "${YELLOW}│    └─ Ollama's Insight: ${CYAN}Leverage Ollama's AI capabilities${YELLOW}      │${NC}"
+    echo -e "${YELLOW}│    └─ Database's Depth: ${CYAN}Dive into the database intricacies${YELLOW}   │${NC}"
+    echo -e "${YELLOW}│    └─ Traefik's Path: ${CYAN}Explore with Traefik's routing capabilities${YELLOW} │${NC}"
+    echo -e "${YELLOW}│    └─ Core's Essence: ${CYAN}Understand the core functionalities${YELLOW}       │${NC}"
+    echo -e "${YELLOW}│    └─ Ollama's Insight: ${CYAN}Leverage Ollama's AI capabilities${YELLOW}      │${NC}"
+    echo -e "${YELLOW}│    └─ Database's Depth: ${CYAN}Dive into the database intricacies${YELLOW}   │${NC}"
+    echo -e "${YELLOW}│    └─ Traefik's Path: ${CYAN}Explore with Traefik's routing capabilities${YELLOW} │${NC}"
+    echo -e "${YELLOW}│ 🔗 N8N Workflows:         ${BLUE}https://n8n.helix.local:8443${YELLOW}       │${NC}"
+    echo -e "${YELLOW}│    └─ Workflow 1:     ${CYAN}Description of Workflow 1${YELLOW}            │${NC}"
+    echo -e "${YELLOW}│    └─ Workflow 2:     ${CYAN}Description of Workflow 2${YELLOW}            │${NC}"
+    echo -e "${YELLOW}│    └─ Workflow 3:     ${CYAN}Description of Workflow 3${YELLOW}            │${NC}"
+    echo -e "${YELLOW}│    └─ Workflow 4:     ${CYAN}Description of Workflow 4${YELLOW}            │${NC}"
     echo -e "${YELLOW}└─────────────────────────────────────────────────────────────┘${NC}"
-    echo
-    echo -e "${PURPLE}🏔️ SWISS MOUNTAIN TIPS (41 Years Wisdom):${NC}"
+    echo -e "${PURPLE}🏔️ SWISS MOUNTAIN TIPS (years Wisdom):${NC}"
+
     echo -e "${GREEN}⚡ QUICK WIN COMMANDS:${NC}"
     echo "   • Health check: ./scripts/helix-health-check.sh"
     echo "   • Smooth restart: ./scripts/wilhelm-tell-restart.sh"
@@ -253,13 +274,84 @@ test_http_endpoint "http://localhost:8081/" 200 "Keycloak Root Endpoint Direct"
 # 4. HTTPS Proxy Tests (through Traefik)
 echo -e "${YELLOW}🔐 HTTPS PROXY TESTS${NC}"
 echo "=============================================="
+# traefik
 test_http_endpoint "https://traefik.helix.local:8443/dashboard/" 200 "Traefik Dashboard HTTPS"
+# Core
 test_http_endpoint "https://helix.local:8443" 302 "Helix Core HTTPS (redirect)"
 test_http_endpoint "https://helix.local:8443/dashboard" 200 "Helix Core Dashboard HTTPS"
+# ollama
 test_http_endpoint "https://ollama.helix.local:8443" 200 "Ollama HTTPS"
 test_http_endpoint "https://ollama.helix.local:8443/api/tags" 200 "Ollama API HTTPS"
+# FileBrowser
 test_http_endpoint "https://files.helix.local:8443" 200 "FileBrowser HTTPS"
 test_http_endpoint "https://sftp.helix.local:8443" 200 "SFTP Web Interface HTTPS (FileBrowser)"
+# n8n
+test_http_endpoint "https://n8n.helix.local:8443" 200 "n8n HTTPS"
+test_http_endpoint "https://n8n.helix.local:8443/api/health" 200 "n8n API Health Check HTTPS"
+# keycloak
+test_http_endpoint "https://keycloak.helix.local:8443" 200 "Keycloak HTTPS"
+
+# Keycloak admin API: Test with token-based auth (more reliable than /admin/ path)
+test_keycloak_admin_api() {
+    local base_https="https://keycloak.helix.local:8443"
+    echo -e "${CYAN}🔍 Testing Keycloak admin API with token auth${NC}"
+    
+    # Get admin token
+    token_response=$(curl -s -k -X POST "$base_https/realms/master/protocol/openid-connect/token" \
+        -d 'grant_type=password&client_id=admin-cli&username=admin&password=admin123' 2>/dev/null)
+    
+    if token=$(echo "$token_response" | jq -r '.access_token' 2>/dev/null) && [ "$token" != "null" ] && [ -n "$token" ]; then
+        # Test admin API endpoint that works
+        if response=$(curl -s -o /dev/null -w "%{http_code}" -k \
+            -H "Authorization: Bearer $token" \
+            "$base_https/admin/realms" 2>/dev/null); then
+            if [ "$response" = "200" ]; then
+                print_status "PASS" "Keycloak Admin API - Token auth and /admin/realms endpoint working"
+                return 0
+            else
+                print_status "FAIL" "Keycloak Admin API - /admin/realms returned HTTP $response"
+            fi
+        else
+            print_status "FAIL" "Keycloak Admin API - Connection failed to /admin/realms"
+        fi
+    else
+        print_status "FAIL" "Keycloak Admin API - Token request failed"
+    fi
+}
+test_keycloak_admin_api
+# 4.5. Database Connection Test
+echo "Testing database connection (waiting for readiness)..."
+# Use the DB user defined in docker-compose (POSTGRES_USER)
+DB_USER=helix
+DB_NAME=helix
+# Wait for Postgres to be ready with a retry loop
+DB_READY=false
+for i in {1..12}; do
+    if docker exec helix-hub-postgres-1 pg_isready -U "$DB_USER" -d "$DB_NAME" -t 1 >/dev/null 2>&1; then
+        DB_READY=true
+        break
+    fi
+    echo "  Waiting for Postgres... ($i)"
+    sleep 2
+done
+
+if [ "$DB_READY" = true ]; then
+    # Test a simple query against the main helix DB
+    if docker exec helix-hub-postgres-1 psql -U "$DB_USER" -d "$DB_NAME" -c 'SELECT 1' >/dev/null 2>&1; then
+        print_status "PASS" "Database connection successful (user: $DB_USER, db: $DB_NAME)"
+    else
+        print_status "FAIL" "Database reachable but query failed for user $DB_USER on $DB_NAME"
+    fi
+
+    # Also check Keycloak DB accessibility (created via init.sql)
+    if docker exec helix-hub-postgres-1 psql -U "$DB_USER" -d keycloak_db -c 'SELECT 1' >/dev/null 2>&1; then
+        print_status "PASS" "Keycloak DB reachable as $DB_USER"
+    else
+        print_status "WARN" "Keycloak DB query failed as $DB_USER - consider testing with keycloak_user or checking grants"
+    fi
+else
+    print_status "FAIL" "Database not ready after retries"
+fi
 
 # 5. Certificate and SSL Tests
 echo -e "${YELLOW}🔐 SSL/TLS CERTIFICATE TESTS${NC}"
@@ -270,6 +362,7 @@ if openssl s_client -connect traefik.helix.local:8443 -servername traefik.helix.
 else
     print_status "FAIL" "SSL Certificate - Invalid or inaccessible"
 fi
+echo
 echo
 
 # 6. System Resource Tests
@@ -289,7 +382,7 @@ echo
 echo -e "${YELLOW}🌍 DNS/HOSTS CONFIGURATION TESTS${NC}"
 echo "=============================================="
 echo -e "${CYAN}🔍 Testing: /etc/hosts entries${NC}"
-required_hosts=("helix.local" "traefik.helix.local" "ollama.helix.local" "sftp.helix.local" "files.helix.local")
+required_hosts=("helix.local" "traefik.helix.local" "ollama.helix.local" "sftp.helix.local" "files.helix.local" "n8n.helix.local" "keycloak.helix.local")
 for host in "${required_hosts[@]}"; do
     if grep -q "$host" /etc/hosts; then
         print_status "PASS" "/etc/hosts entry for $host exists"
@@ -360,7 +453,7 @@ if [ $FAILED_TESTS -eq 0 ]; then
     echo -e "${YELLOW}│    └─ Root Token:     ${GREEN}myroot${YELLOW}                                │${NC}"
     echo -e "${YELLOW}│ 📁 FILE MANAGER:      ${BLUE}https://files.helix.local:8443${YELLOW}        │${NC}"
     echo -e "${YELLOW}│    └─ Credentials:    ${GREEN}admin / admin${YELLOW}                         │${NC}"
-    echo -e "${YELLOW}│ 🤖 OLLAMA AI:         ${BLUE}https://ollama.helix.local:8443${YELLOW}        │${NC}"
+    echo -e "${YELLOW}│ 🤖 OLLAMA AI:         ${BLUE}https://ollama.helix.local:8443${YELLOW}       │${NC}"
     echo -e "${YELLOW}└─────────────────────────────────────────────────────────────┘${NC}"
     echo
     echo -e "${PURPLE}🎯 WILHELM TELL'S NEXT STEPS (Swiss Precision Guide):${NC}"
