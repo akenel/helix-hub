@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎪 {{episode_title}}</title>
+    <meta name="description" content="Chuck Norris Academy: Where AI failures become legendary career advice!">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .academy-title {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+        .section {
+            background: rgba(0, 0, 0, 0.2);
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #feca57;
+        }
+        .chuck-quote {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.4em;
+            font-style: italic;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        .career-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .career-item {
+            background: rgba(254, 202, 87, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #feca57;
+            transition: transform 0.3s ease;
+        }
+        .career-item:hover {
+            transform: scale(1.05);
+        }
+        .encouragement {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: #2d3436;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(86, 171, 47, 0.3);
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #feca57;
+        }
+        .cta-button {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        .cta-button:hover {
+            transform: translateY(-3px);
+        }
+        .links a {
+            color: #48dbfb;
+            text-decoration: none;
+            display: block;
+            padding: 8px 0;
+        }
+        .links a:hover {
+            color: #fff;
+        }
+        .metadata {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="academy-title">🎪 CHUCK NORRIS ACADEMY</div>
+            <div class="subtitle">Where AI Failures Become Career Legends!</div>
+        </div>
+        
+        <div class="section">
+            <h2>🎯 Career Warrior: {{guest_name}}</h2>
+            <p><strong>Email:</strong> {{guest_email}}</p>
+            <p><strong>Academy Session:</strong> #{{academy_session}}</p>
+            <p><strong>Level:</strong> {{user_level}}</p>
+            <div style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                <strong>📝 Your Profile:</strong><br>
+                {{profile_text}}
+            </div>
+        </div>
+        
+        <div class="chuck-quote">
+            "{{chuck_joke}}"
+        </div>
+        
+        <div class="encouragement">
+            {{encouragement}}
+        </div>
+        
+        <div class="section">
+            <h3>💡 Chuck's Career Advice</h3>
+            <p>{{chuck_advice}}</p>
+        </div>
+        
+        <div class="section">
+            <h3>🚀 Recommended Career Paths</h3>
+            <div class="career-grid">
+                {{#career_suggestions}}
+                <div class="career-item">{{.}}</div>
+                {{/career_suggestions}}
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value">{{academy_session}}</div>
+                <div>Session #</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">{{chuck_rating}}</div>
+                <div>Chuck Rating</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">∞</div>
+                <div>Potential</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>📚 Career Resources</h3>
+            <div class="links">
+                {{#career_links}}
+                <a href="{{.}}" target="_blank">{{.}}</a>
+                {{/career_links}}
+            </div>
+        </div>
+        
+        {{#error_context}}
+        <div class="section" style="border-left-color: #ff6b6b;">
+            <h3>🤖 What Happened</h3>
+            <p><strong>Tech Issue:</strong> {{error_context}}</p>
+            <p>{{ai_training_tip}}</p>
+        </div>
+        {{/error_context}}
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="#" class="cta-button" onclick="alert('Chuck believes in your comeback! 💪')">🎯 Try Oracle Again</a>
+            <a href="#" class="cta-button" onclick="alert('Chuck Academy session shared! 🎪')">📱 Share Success</a>
+        </div>
+        
+        <div class="metadata">
+            <strong>Session Details:</strong><br>
+            Type: {{content_type}} | Model: {{ai_model}} | Generated: {{generation_timestamp}}<br>
+            Quality: {{content_quality}} | Oracle Loaded: {{oracle_loaded}}
+        </div>
+    </div>
+</body>
+</html>

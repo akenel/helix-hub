@@ -1,0 +1,194 @@
+{
+  "name": "🔮 Oracle Podcast Studio - Fixed Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "oracle-fixed",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-input",
+      "name": "🎯 Webhook Input",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "webhookId": "oracle-fixed-studio"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "processing_id",
+              "value": "=podcast_{{ DateTime.now().toUnixInteger() }}_{{ $json.body.name.toLowerCase().replace(/\\s+/g, '_') }}"
+            },
+            {
+              "name": "guest_name",
+              "value": "={{ $json.body.name }}"
+            },
+            {
+              "name": "guest_email",
+              "value": "={{ $json.body.email }}"
+            },
+            {
+              "name": "profile_text",
+              "value": "={{ $json.body.profile_text }}"
+            },
+            {
+              "name": "job_description",
+              "value": "={{ $json.body.job_description || 'Professional' }}"
+            },
+            {
+              "name": "prompt_type",
+              "value": "={{ $json.body.prompt_type || 'general' }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ DateTime.now().toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "data-processor",
+      "name": "🔍 Data Processor",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build oracle-based prompt directly\nconst inputData = items[0].json;\n\nlet finalPrompt;\nlet oracleStyle;\n\nif (inputData.prompt_type === 'corporate_climber') {\n  oracleStyle = '💼 Corporate Climber';\n  finalPrompt = `Create a professional podcast interview prep package for:\n\nName: ${inputData.guest_name}\nEmail: ${inputData.guest_email}\nProfile: ${inputData.profile_text}\nRole: ${inputData.job_description}\n\nGenerate a CORPORATE CLIMBER style interview package focusing on:\n- Executive leadership development\n- Strategic decision-making and business impact\n- Team management and organizational growth\n- Boardroom presence and corporate excellence\n\nReturn ONLY valid JSON in this exact format:\n{\n  \"episode_title\": \"Executive leadership focused title\",\n  \"guest_bio\": \"Professional biography emphasizing leadership credentials\",\n  \"leadership_story_1\": \"Key leadership achievement with business impact\",\n  \"leadership_story_2\": \"Strategic decision that drove results\",\n  \"team_impact_story\": \"Team development or organizational transformation\",\n  \"question_1\": \"Strategic leadership and vision question\",\n  \"question_2\": \"Team management and people development question\",\n  \"question_3\": \"Business strategy and market positioning question\",\n  \"professional_bio\": \"Extended executive summary with quantified achievements\",\n  \"talking_points\": \"Key discussion points for executive-level interview\"\n}\n\nFocus on leadership impact, strategic thinking, business results, and executive presence.`;\n} else if (inputData.prompt_type === 'tech_titan') {\n  oracleStyle = '🚀 Tech Titan';\n  finalPrompt = `Create a technology-focused podcast interview prep package for:\n\nName: ${inputData.guest_name}\nProfile: ${inputData.profile_text}\nRole: ${inputData.job_description}\n\nGenerate a TECH TITAN style interview package focusing on:\n- Innovation and technology leadership\n- Product development and engineering excellence\n- Digital transformation and scaling\n- Future technology trends\n\nReturn ONLY valid JSON:\n{\n  \"episode_title\": \"Tech innovation focused title\",\n  \"guest_bio\": \"Technology leader biography\",\n  \"innovation_story_1\": \"Key technology breakthrough\",\n  \"innovation_story_2\": \"Product or platform success\",\n  \"scaling_story\": \"Team or technology scaling achievement\",\n  \"question_1\": \"Technology vision and innovation question\",\n  \"question_2\": \"Product development and engineering question\",\n  \"question_3\": \"Future technology trends question\",\n  \"professional_bio\": \"Technical executive summary\",\n  \"talking_points\": \"Key technology discussion points\"\n}`;\n} else {\n  oracleStyle = '🎯 General Professional';\n  finalPrompt = `Create a professional podcast episode package for:\n\nName: ${inputData.guest_name}\nProfile: ${inputData.profile_text}\nRole: ${inputData.job_description}\n\nReturn valid JSON only:\n{\n\"episode_title\": \"Professional episode title\",\n\"guest_bio\": \"Professional biography\",\n\"industry_focus\": \"Primary industry\",\n\"win_story_1\": \"Achievement story 1\",\n\"win_story_2\": \"Achievement story 2\",\n\"question_1\": \"Career development question?\",\n\"question_2\": \"Professional challenge question?\", \n\"question_3\": \"Industry advice question?\",\n\"key_insights\": [\"insight1\", \"insight2\", \"insight3\"],\n\"episode_summary\": \"Episode description\"\n}`;\n}\n\n// Return combined data with the prompt\nreturn [{\n  json: {\n    ...inputData,\n    final_prompt: finalPrompt,\n    oracle_style: oracleStyle,\n    oracle_loaded: true\n  }\n}];"
+      },
+      "id": "oracle-prompt-builder",
+      "name": "🔮 Oracle Prompt Builder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b",
+        "prompt": "={{ $json.final_prompt }}",
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 1000
+        }
+      },
+      "id": "ai-generator",
+      "name": "🤖 AI Content Generator",
+      "type": "n8n-nodes-base.ollama",
+      "typeVersion": 1,
+      "position": [860, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse AI response and combine with original data\nconst inputData = items[0].json;\nconst aiResponse = inputData.output || inputData.response || inputData.content;\n\ntry {\n  // Clean and parse AI response\n  let cleanedResponse = aiResponse.trim();\n  \n  // Remove any markdown code blocks\n  cleanedResponse = cleanedResponse.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n  \n  // Find JSON object in response\n  const jsonStart = cleanedResponse.indexOf('{');\n  const jsonEnd = cleanedResponse.lastIndexOf('}') + 1;\n  \n  if (jsonStart >= 0 && jsonEnd > jsonStart) {\n    cleanedResponse = cleanedResponse.substring(jsonStart, jsonEnd);\n  }\n  \n  // Parse JSON\n  const aiContent = JSON.parse(cleanedResponse);\n  \n  // Combine original data with AI generated content\n  const result = {\n    // Original input data\n    processing_id: inputData.processing_id,\n    guest_name: inputData.guest_name,\n    guest_email: inputData.guest_email,\n    profile_text: inputData.profile_text,\n    job_description: inputData.job_description,\n    prompt_type: inputData.prompt_type,\n    oracle_style: inputData.oracle_style,\n    timestamp: inputData.timestamp,\n    oracle_loaded: inputData.oracle_loaded,\n    \n    // AI generated content\n    ...aiContent,\n    \n    // Metadata\n    ai_model: \"llama3.2:1b\",\n    generation_timestamp: new Date().toISOString(),\n    content_quality: \"professional\",\n    automation_level: \"100%\"\n  };\n  \n  return [{ json: result }];\n  \n} catch (error) {\n  // Error handling\n  return [{\n    json: {\n      error: true,\n      error_message: \"Failed to parse AI response: \" + error.message,\n      raw_ai_response: aiResponse,\n      processing_id: inputData.processing_id,\n      guest_name: inputData.guest_name,\n      oracle_style: inputData.oracle_style,\n      timestamp: new Date().toISOString()\n    }\n  }];\n}"
+      },
+      "id": "content-processor",
+      "name": "🔧 Content Processor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [1080, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "html_package",
+              "value": "=<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n    <meta charset=\"UTF-8\">\\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\\n    <title>{{ $json.episode_title || 'Oracle Podcast Package' }} - Oracle Studio</title>\\n    <style>\\n        * { margin: 0; padding: 0; box-sizing: border-box; }\\n        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }\\n        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }\\n        .header { background: rgba(255,255,255,0.95); border-radius: 15px; padding: 30px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }\\n        .episode-title { font-size: 2.5em; color: #2c3e50; margin-bottom: 10px; font-weight: 700; }\\n        .guest-name { font-size: 1.8em; color: #e74c3c; margin-bottom: 20px; }\\n        .oracle-badge { display: inline-block; background: #9b59b6; color: white; padding: 8px 16px; border-radius: 25px; font-weight: bold; margin-bottom: 20px; }\\n        .section { background: rgba(255,255,255,0.95); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }\\n        .section-title { font-size: 1.5em; color: #2c3e50; margin-bottom: 15px; border-bottom: 3px solid #9b59b6; padding-bottom: 5px; }\\n        .bio-text { font-size: 1.1em; color: #555; margin-bottom: 15px; }\\n        .questions { list-style: none; }\\n        .questions li { background: #f8f9fa; margin: 10px 0; padding: 15px; border-radius: 8px; border-left: 4px solid #e74c3c; }\\n        .leadership-stories { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }\\n        .leadership-story { background: linear-gradient(45deg, #8e44ad, #3498db); color: white; padding: 20px; border-radius: 10px; font-weight: bold; }\\n        .team-impact { background: linear-gradient(45deg, #e67e22, #f39c12); color: white; padding: 20px; border-radius: 10px; font-weight: bold; margin-top: 15px; }\\n        .talking-points { background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #f39c12; }\\n        .insights { list-style: none; }\\n        .insights li { background: #e8f5e8; margin: 8px 0; padding: 12px; border-radius: 6px; border-left: 4px solid #27ae60; }\\n        .metadata { background: #34495e; color: white; border-radius: 12px; padding: 20px; margin-top: 20px; }\\n        .metadata-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }\\n        .metadata-item { text-align: center; }\\n        .metadata-value { font-size: 1.2em; font-weight: bold; color: #9b59b6; }\\n        .footer { text-align: center; margin-top: 30px; color: rgba(255,255,255,0.8); }\\n        @media (max-width: 768px) { .leadership-stories { grid-template-columns: 1fr; } .metadata-grid { grid-template-columns: 1fr; } }\\n    </style>\\n</head>\\n<body>\\n    <div class=\"container\">\\n        <div class=\"header\">\\n            <h1 class=\"episode-title\">{{ $json.episode_title || 'Professional Podcast Package' }}</h1>\\n            <h2 class=\"guest-name\">Featuring {{ $json.guest_name }}</h2>\\n            <span class=\"oracle-badge\">🔮 {{ $json.oracle_style || $json.prompt_type }} Oracle</span>\\n            <p class=\"bio-text\">{{ $json.guest_bio || 'Professional biography' }}</p>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">🎯 Professional Background</h3>\\n            <p><strong>Current Role:</strong> {{ $json.job_description }}</p>\\n            <br>\\n            <p><strong>Professional Profile:</strong> {{ $json.profile_text }}</p>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">🏆 Achievement Stories</h3>\\n            <div class=\"leadership-stories\">\\n                <div class=\"leadership-story\">{{ $json.leadership_story_1 || $json.innovation_story_1 || $json.win_story_1 || 'Achievement Story 1' }}</div>\\n                <div class=\"leadership-story\">{{ $json.leadership_story_2 || $json.innovation_story_2 || $json.win_story_2 || 'Achievement Story 2' }}</div>\\n            </div>\\n            <div class=\"team-impact\">{{ $json.team_impact_story || $json.scaling_story || 'Team Impact & Growth Story' }}</div>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">❓ Interview Questions</h3>\\n            <ul class=\"questions\">\\n                <li><strong>Q1:</strong> {{ $json.question_1 || 'Professional question 1' }}</li>\\n                <li><strong>Q2:</strong> {{ $json.question_2 || 'Professional question 2' }}</li>\\n                <li><strong>Q3:</strong> {{ $json.question_3 || 'Professional question 3' }}</li>\\n            </ul>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">💼 Professional Summary</h3>\\n            <p class=\"bio-text\">{{ $json.professional_bio || $json.episode_summary || 'Professional summary and key achievements' }}</p>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">💡 Key Insights</h3>\\n            <div class=\"talking-points\">{{ $json.talking_points || 'Key discussion points and insights' }}</div>\\n            <ul class=\"insights\">\\n                <li>{{ $json.key_insights ? $json.key_insights[0] : 'Professional insight 1' }}</li>\\n                <li>{{ $json.key_insights ? $json.key_insights[1] : 'Professional insight 2' }}</li>\\n                <li>{{ $json.key_insights ? $json.key_insights[2] : 'Professional insight 3' }}</li>\\n            </ul>\\n        </div>\\n\\n        <div class=\"metadata\">\\n            <h3 style=\"text-align: center; margin-bottom: 20px;\">📊 Oracle Package Metadata</h3>\\n            <div class=\"metadata-grid\">\\n                <div class=\"metadata-item\">\\n                    <div class=\"metadata-value\">{{ $json.processing_id }}</div>\\n                    <div>Processing ID</div>\\n                </div>\\n                <div class=\"metadata-item\">\\n                    <div class=\"metadata-value\">{{ $json.ai_model || 'AI Model' }}</div>\\n                    <div>AI Model</div>\\n                </div>\\n                <div class=\"metadata-item\">\\n                    <div class=\"metadata-value\">{{ $json.oracle_loaded ? '✅' : '❌' }}</div>\\n                    <div>Oracle Loaded</div>\\n                </div>\\n                <div class=\"metadata-item\">\\n                    <div class=\"metadata-value\">CHF 0</div>\\n                    <div>Generation Cost</div>\\n                </div>\\n            </div>\\n        </div>\\n\\n        <div class=\"footer\">\\n            <p>🔮 Generated by Oracle Podcast Studio</p>\\n            <p>🏔️ Swiss-Engineered AI Precision • {{ $json.generation_timestamp || $json.timestamp }}</p>\\n        </div>\\n    </div>\\n</body>\\n</html>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "html-generator",
+      "name": "🎨 HTML Package Generator",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "html",
+        "responseBody": "={{ $json.html_package }}",
+        "options": {}
+      },
+      "id": "html-response",
+      "name": "✅ Oracle HTML Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1520, 300]
+    }
+  ],
+  "connections": {
+    "webhook-input": {
+      "main": [
+        [
+          {
+            "node": "data-processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "data-processor": {
+      "main": [
+        [
+          {
+            "node": "oracle-prompt-builder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "oracle-prompt-builder": {
+      "main": [
+        [
+          {
+            "node": "ai-generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ai-generator": {
+      "main": [
+        [
+          {
+            "node": "content-processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "content-processor": {
+      "main": [
+        [
+          {
+            "node": "html-generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "html-generator": {
+      "main": [
+        [
+          {
+            "node": "html-response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

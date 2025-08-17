@@ -1,0 +1,210 @@
+{
+  "name": "🎪 Podcast Studio Million Dollar Pipeline v1.0",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "podcast-studio/v1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-start",
+      "name": "📡 Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "podcast-studio-webhook"
+    },
+    {
+      "parameters": {
+        "functionCode": "// 🏔️ Swiss Precision Data Validation & Processing\n// Extract and validate incoming data\n\nconst inputData = $json.body || $json;\n\n// Validate required fields\nconst requiredFields = ['name', 'email', 'linkedin_text'];\nconst missingFields = requiredFields.filter(field => !inputData[field]);\n\nif (missingFields.length > 0) {\n  throw new Error(`Missing required fields: ${missingFields.join(', ')}`);\n}\n\n// Clean and structure data\nconst cleanedData = {\n  name: inputData.name.trim(),\n  email: inputData.email.trim().toLowerCase(),\n  linkedin_text: inputData.linkedin_text.trim(),\n  job_description: inputData.job_description?.trim() || '',\n  company: inputData.company?.trim() || '',\n  timestamp: new Date().toISOString(),\n  processing_id: `podcast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`\n};\n\n// Extract industry/field from LinkedIn text (basic analysis)\nconst industryKeywords = {\n  'banking': ['bank', 'financial', 'credit', 'loan', 'investment'],\n  'technology': ['software', 'tech', 'developer', 'programming', 'IT'],\n  'healthcare': ['medical', 'health', 'hospital', 'patient', 'clinical'],\n  'education': ['teacher', 'professor', 'education', 'student', 'university'],\n  'marketing': ['marketing', 'brand', 'advertising', 'campaign', 'social media']\n};\n\nlet detectedIndustry = 'professional';\nfor (const [industry, keywords] of Object.entries(industryKeywords)) {\n  if (keywords.some(keyword => cleanedData.linkedin_text.toLowerCase().includes(keyword))) {\n    detectedIndustry = industry;\n    break;\n  }\n}\n\ncleanedData.detected_industry = detectedIndustry;\n\nconsole.log('✅ Data validation complete:', cleanedData.processing_id);\n\nreturn cleanedData;"
+      },
+      "id": "data-processor",
+      "name": "🔍 Data Validator & Processor",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "http://ollama:11434/api/generate",
+        "jsonParameters": true,
+        "parametersJson": "{\n  \"model\": \"llama3.2:latest\",\n  \"prompt\": \"Create a professional podcast episode package for: {{$json.name}} in {{$json.detected_industry}} industry.\\n\\nLinkedIn Profile Data:\\n{{$json.linkedin_text}}\\n\\nJob Description (if provided):\\n{{$json.job_description}}\\n\\nGenerate EXACTLY this JSON structure with professional content:\\n{\\n  \\\"episode_title\\\": \\\"[Create compelling episode title]\\\",\\n  \\\"guest_bio\\\": \\\"[Professional 100-word bio]\\\",\\n  \\\"win_story_1\\\": \\\"[Career achievement story title]\\\",\\n  \\\"win_story_2\\\": \\\"[Another achievement story title]\\\",\\n  \\\"question_1\\\": \\\"[Thoughtful interview question about their expertise]\\\",\\n  \\\"question_2\\\": \\\"[Question about their career journey]\\\",\\n  \\\"question_3\\\": \\\"[Question about industry insights]\\\",\\n  \\\"question_4\\\": \\\"[Question about advice for others]\\\",\\n  \\\"question_5\\\": \\\"[Question about future trends]\\\",\\n  \\\"professional_bio\\\": \\\"[Detailed 200-word professional biography]\\\",\\n  \\\"industry_focus\\\": \\\"[Their area of expertise]\\\",\\n  \\\"value_proposition\\\": \\\"[What unique value they bring]\\\",\\n  \\\"call_to_action\\\": \\\"[How audience can connect with them]\\\"\\n}\\n\\nRespond ONLY with valid JSON, no additional text.\",\n  \"stream\": false,\n  \"options\": {\n    \"temperature\": 0.7,\n    \"top_p\": 0.9\n  }\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "ollama-ai",
+      "name": "🤖 Ollama AI Content Generator",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 🎭 AI Response Parser & Content Structurer\n// Parse Ollama response and structure for template\n\nconst ollamaResponse = $json.response || $json.body;\nlet aiContent;\n\ntry {\n  // Extract JSON from Ollama response\n  const responseText = ollamaResponse.response || ollamaResponse;\n  \n  // Clean the response to extract just the JSON\n  const jsonMatch = responseText.match(/\\{[\\s\\S]*\\}/);\n  if (!jsonMatch) {\n    throw new Error('No JSON found in AI response');\n  }\n  \n  aiContent = JSON.parse(jsonMatch[0]);\n  \n} catch (error) {\n  console.error('❌ Error parsing AI response:', error);\n  // Fallback content structure\n  aiContent = {\n    episode_title: `Professional Insights with ${$('data-processor').item.json.name}`,\n    guest_bio: `${$('data-processor').item.json.name} is a seasoned professional in the ${$('data-processor').item.json.detected_industry} industry.`,\n    win_story_1: \"Career Achievement Story\",\n    win_story_2: \"Professional Milestone\",\n    question_1: \"What inspired you to enter your field?\",\n    question_2: \"What has been your biggest career achievement?\",\n    question_3: \"What trends do you see in your industry?\",\n    question_4: \"What advice would you give to newcomers?\",\n    question_5: \"Where do you see the industry heading?\",\n    professional_bio: `Detailed professional biography for ${$('data-processor').item.json.name}.`,\n    industry_focus: $('data-processor').item.json.detected_industry,\n    value_proposition: \"Bringing unique insights and expertise\",\n    call_to_action: \"Connect on LinkedIn for more insights\"\n  };\n}\n\n// Merge with original data\nconst finalData = {\n  ...$('data-processor').item.json,\n  ...aiContent,\n  generation_timestamp: new Date().toISOString(),\n  ai_model: 'llama3.2:latest',\n  content_quality: 'professional'\n};\n\nconsole.log('✅ AI content processed:', finalData.processing_id);\n\nreturn finalData;"
+      },
+      "id": "content-parser",
+      "name": "🎭 AI Content Parser",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 🎨 Dynamic HTML Template Generator\n// Create professional podcast episode HTML package\n\nconst data = $json;\n\nconst htmlTemplate = `\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Podcast Episode: ${data.episode_title}</title>\n    <style>\n        body {\n            font-family: 'Arial', sans-serif;\n            line-height: 1.6;\n            color: #333;\n            max-width: 800px;\n            margin: 0 auto;\n            padding: 20px;\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n        }\n        .container {\n            background: white;\n            border-radius: 15px;\n            padding: 40px;\n            box-shadow: 0 10px 30px rgba(0,0,0,0.2);\n        }\n        .header {\n            text-align: center;\n            border-bottom: 3px solid #667eea;\n            padding-bottom: 20px;\n            margin-bottom: 30px;\n        }\n        .episode-title {\n            font-size: 2.5em;\n            color: #2c3e50;\n            margin-bottom: 10px;\n            font-weight: bold;\n        }\n        .guest-name {\n            font-size: 1.8em;\n            color: #667eea;\n            margin-bottom: 5px;\n        }\n        .industry-tag {\n            background: #667eea;\n            color: white;\n            padding: 5px 15px;\n            border-radius: 20px;\n            font-size: 0.9em;\n            display: inline-block;\n        }\n        .section {\n            margin: 30px 0;\n            padding: 20px;\n            border-left: 4px solid #667eea;\n            background: #f8f9fa;\n            border-radius: 0 10px 10px 0;\n        }\n        .section h3 {\n            color: #2c3e50;\n            margin-top: 0;\n            font-size: 1.4em;\n        }\n        .questions {\n            background: #e8f4fd;\n            padding: 20px;\n            border-radius: 10px;\n            margin: 20px 0;\n        }\n        .question {\n            margin: 15px 0;\n            padding: 10px;\n            background: white;\n            border-radius: 5px;\n            border-left: 3px solid #667eea;\n        }\n        .question strong {\n            color: #2c3e50;\n        }\n        .metadata {\n            background: #2c3e50;\n            color: white;\n            padding: 20px;\n            border-radius: 10px;\n            margin-top: 30px;\n            font-size: 0.9em;\n        }\n        .cta {\n            background: linear-gradient(45deg, #667eea, #764ba2);\n            color: white;\n            padding: 20px;\n            text-align: center;\n            border-radius: 10px;\n            margin: 20px 0;\n        }\n        .emoji {\n            font-size: 1.2em;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h1 class=\"episode-title\">🎙️ ${data.episode_title}</h1>\n            <h2 class=\"guest-name\">✨ Featuring: ${data.name}</h2>\n            <span class=\"industry-tag\">🏆 ${data.industry_focus || data.detected_industry}</span>\n        </div>\n\n        <div class=\"section\">\n            <h3>👤 Guest Biography</h3>\n            <p>${data.guest_bio}</p>\n        </div>\n\n        <div class=\"section\">\n            <h3>📖 Professional Background</h3>\n            <p>${data.professional_bio}</p>\n        </div>\n\n        <div class=\"section\">\n            <h3>🏆 Success Stories</h3>\n            <div class=\"question\">\n                <strong>🌟 Achievement 1:</strong> ${data.win_story_1}\n            </div>\n            <div class=\"question\">\n                <strong>🌟 Achievement 2:</strong> ${data.win_story_2 || 'Professional Excellence Journey'}\n            </div>\n        </div>\n\n        <div class=\"section\">\n            <h3>🎯 Value Proposition</h3>\n            <p>${data.value_proposition}</p>\n        </div>\n\n        <div class=\"questions\">\n            <h3>🎤 Interview Questions</h3>\n            <div class=\"question\">\n                <strong>Q1:</strong> ${data.question_1}\n            </div>\n            <div class=\"question\">\n                <strong>Q2:</strong> ${data.question_2}\n            </div>\n            <div class=\"question\">\n                <strong>Q3:</strong> ${data.question_3}\n            </div>\n            <div class=\"question\">\n                <strong>Q4:</strong> ${data.question_4}\n            </div>\n            <div class=\"question\">\n                <strong>Q5:</strong> ${data.question_5}\n            </div>\n        </div>\n\n        <div class=\"cta\">\n            <h3>🤝 Connect with ${data.name}</h3>\n            <p>${data.call_to_action}</p>\n            <p><strong>📧 Email:</strong> ${data.email}</p>\n        </div>\n\n        <div class=\"metadata\">\n            <h4>🔧 Generation Details</h4>\n            <p><strong>📅 Generated:</strong> ${new Date(data.generation_timestamp).toLocaleString()}</p>\n            <p><strong>🤖 AI Model:</strong> ${data.ai_model}</p>\n            <p><strong>🆔 Processing ID:</strong> ${data.processing_id}</p>\n            <p><strong>🏔️ Quality:</strong> Swiss Precision - Professional Grade</p>\n        </div>\n    </div>\n\n    <script>\n        // Add some interactivity\n        document.addEventListener('DOMContentLoaded', function() {\n            console.log('🎪 Podcast Studio Package Loaded Successfully!');\n            console.log('🎯 Processing ID: ${data.processing_id}');\n        });\n    </script>\n</body>\n</html>\n`;\n\n// Calculate package size (approximate)\nconst packageSize = Math.round(htmlTemplate.length / 1024);\n\nconst result = {\n  ...data,\n  html_content: htmlTemplate,\n  package_size_kb: packageSize,\n  package_ready: true,\n  delivery_ready: true,\n  final_timestamp: new Date().toISOString()\n};\n\nconsole.log(`✅ HTML package generated: ${packageSize}KB for ${data.name}`);\n\nreturn result;"
+      },
+      "id": "html-generator",
+      "name": "🎨 HTML Package Generator",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "podcast-studio@helix.local",
+        "toEmail": "={{ $json.email }}",
+        "subject": "🎙️ Your Professional Podcast Episode Package - {{ $json.episode_title }}",
+        "emailFormat": "html",
+        "message": "<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n        .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px; }\n        .content { background: #f8f9fa; padding: 30px; border-radius: 10px; margin: 20px 0; }\n        .cta { background: #667eea; color: white; padding: 20px; text-align: center; border-radius: 10px; margin: 20px 0; }\n        .footer { text-align: center; color: #666; font-size: 0.9em; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h1>🎙️ Your Podcast Episode Package</h1>\n            <h2>{{ $json.episode_title }}</h2>\n        </div>\n        \n        <div class=\"content\">\n            <h3>Hello {{ $json.name }}! 👋</h3>\n            <p>Your professional podcast episode package has been generated with <strong>Swiss precision</strong>!</p>\n            \n            <h4>📦 Package Details:</h4>\n            <ul>\n                <li>🎯 <strong>Episode Title:</strong> {{ $json.episode_title }}</li>\n                <li>📊 <strong>Package Size:</strong> {{ $json.package_size_kb }}KB</li>\n                <li>🤖 <strong>AI Generated:</strong> {{ $json.ai_model }}</li>\n                <li>⏰ <strong>Generated:</strong> {{ $json.generation_timestamp }}</li>\n                <li>🏆 <strong>Quality:</strong> Professional Grade</li>\n            </ul>\n            \n            <h4>🎤 What's Included:</h4>\n            <ul>\n                <li>✅ Professional guest biography</li>\n                <li>✅ Compelling interview questions (5)</li>\n                <li>✅ Success story highlights</li>\n                <li>✅ Value proposition summary</li>\n                <li>✅ Ready-to-use HTML format</li>\n            </ul>\n        </div>\n        \n        <div class=\"cta\">\n            <h3>🚀 Your Episode Package is Ready!</h3>\n            <p>The complete HTML package is attached to this email.</p>\n            <p><strong>Processing ID:</strong> {{ $json.processing_id }}</p>\n        </div>\n        \n        <div class=\"footer\">\n            <p>🏔️ Generated by Podcast Studio - Swiss Engineering Excellence</p>\n            <p>💰 Professional podcast packages from CHF 99</p>\n            <p>🤖 Powered by AI • 🔧 Built with Precision</p>\n        </div>\n    </div>\n</body>\n</html>",
+        "attachments": "={{ $json.name.replace(/\\s+/g, '_') }}_podcast_episode.html",
+        "options": {}
+      },
+      "id": "email-delivery",
+      "name": "📧 Email Package Delivery",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"🎪 Podcast episode package generated successfully!\",\n  \"data\": {\n    \"processing_id\": \"{{ $json.processing_id }}\",\n    \"episode_title\": \"{{ $json.episode_title }}\",\n    \"guest_name\": \"{{ $json.name }}\",\n    \"package_size_kb\": {{ $json.package_size_kb }},\n    \"email_sent\": true,\n    \"generated_at\": \"{{ $json.final_timestamp }}\",\n    \"quality\": \"professional\",\n    \"ai_model\": \"{{ $json.ai_model }}\"\n  },\n  \"metrics\": {\n    \"processing_time_estimate\": \"< 5 minutes\",\n    \"package_quality\": \"Swiss Precision\",\n    \"automation_level\": \"100%\",\n    \"cost\": \"CHF 0 (AI local)\"\n  },\n  \"next_steps\": {\n    \"email_delivery\": \"✅ Sent to {{ $json.email }}\",\n    \"package_format\": \"HTML attachment ready\",\n    \"follow_up\": \"Package delivered successfully\"\n  }\n}"
+      },
+      "id": "webhook-response",
+      "name": "✅ Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 🚨 Error Handler & Recovery\n// Log error and provide meaningful response\n\nconst error = $json.error || $input.item.json.error || 'Unknown error occurred';\nconst errorDetails = {\n  timestamp: new Date().toISOString(),\n  error_message: error.toString(),\n  processing_stage: 'unknown',\n  recovery_action: 'manual_review_required'\n};\n\n// Determine which stage failed\nif (error.toString().includes('webhook')) {\n  errorDetails.processing_stage = 'webhook_input';\n  errorDetails.recovery_action = 'check_webhook_payload';\n} else if (error.toString().includes('ollama') || error.toString().includes('AI')) {\n  errorDetails.processing_stage = 'ai_generation';\n  errorDetails.recovery_action = 'retry_ai_generation';\n} else if (error.toString().includes('email')) {\n  errorDetails.processing_stage = 'email_delivery';\n  errorDetails.recovery_action = 'check_smtp_config';\n} else if (error.toString().includes('html') || error.toString().includes('template')) {\n  errorDetails.processing_stage = 'html_generation';\n  errorDetails.recovery_action = 'validate_template_data';\n}\n\nconsole.error('❌ Podcast Studio Error:', errorDetails);\n\nreturn {\n  status: 'error',\n  error_details: errorDetails,\n  message: '🚨 Podcast package generation failed',\n  support_info: {\n    contact: 'Check logs for details',\n    retry: 'Possible - check error stage',\n    fallback: 'PowerShell backup system available'\n  }\n};"
+      },
+      "id": "error-handler",
+      "name": "🚨 Error Handler",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [900, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"error\",\n  \"message\": \"❌ Failed to generate podcast package\",\n  \"error\": \"{{ $json.error_details.error_message }}\",\n  \"processing_stage\": \"{{ $json.error_details.processing_stage }}\",\n  \"timestamp\": \"{{ $json.error_details.timestamp }}\",\n  \"recovery\": {\n    \"recommended_action\": \"{{ $json.error_details.recovery_action }}\",\n    \"fallback_option\": \"PowerShell manual generation available\",\n    \"support\": \"Check workflow logs for detailed error information\"\n  }\n}"
+      },
+      "id": "error-response",
+      "name": "❌ Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 500]
+    }
+  ],
+  "connections": {
+    "📡 Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "🔍 Data Validator & Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 Data Validator & Processor": {
+      "main": [
+        [
+          {
+            "node": "🤖 Ollama AI Content Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 Ollama AI Content Generator": {
+      "main": [
+        [
+          {
+            "node": "🎭 AI Content Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎭 AI Content Parser": {
+      "main": [
+        [
+          {
+            "node": "🎨 HTML Package Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎨 HTML Package Generator": {
+      "main": [
+        [
+          {
+            "node": "📧 Email Package Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📧 Email Package Delivery": {
+      "main": [
+        [
+          {
+            "node": "✅ Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "podcast-studio-v1.0",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "podcast-studio-million-dollar-pipeline",
+  "tags": [
+    {
+      "createdAt": "2025-08-17T00:00:00.000Z",
+      "updatedAt": "2025-08-17T00:00:00.000Z",
+      "id": "podcast-automation",
+      "name": "Podcast Automation"
+    },
+    {
+      "createdAt": "2025-08-17T00:00:00.000Z", 
+      "updatedAt": "2025-08-17T00:00:00.000Z",
+      "id": "ai-generation",
+      "name": "AI Content Generation"
+    },
+    {
+      "createdAt": "2025-08-17T00:00:00.000Z",
+      "updatedAt": "2025-08-17T00:00:00.000Z", 
+      "id": "swiss-precision",
+      "name": "Swiss Precision"
+    }
+  ]
+}

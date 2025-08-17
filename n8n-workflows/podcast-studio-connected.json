@@ -1,0 +1,298 @@
+{
+  "name": "🎪 Podcast Studio - Connected & Working",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "podcast-studio/connected",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-input",
+      "name": "🎯 Webhook Input",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "webhookId": "podcast-studio-connected"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "processing_id",
+              "value": "=podcast_{{ DateTime.now().toUnixInteger() }}_{{ $json.body.name.toLowerCase().replace(/\\s+/g, '_') }}"
+            },
+            {
+              "name": "guest_name",
+              "value": "={{ $json.body.name }}"
+            },
+            {
+              "name": "guest_email",
+              "value": "={{ $json.body.email }}"
+            },
+            {
+              "name": "profile_text",
+              "value": "={{ $json.body.profile_text }}"
+            },
+            {
+              "name": "job_description",
+              "value": "={{ $json.body.job_description || 'Professional' }}"
+            },
+            {
+              "name": "prompt_type",
+              "value": "={{ $json.body.prompt_type || 'general' }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ DateTime.now().toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "data-processor",
+      "name": "🔍 Data Processor",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.guest_name }}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{ $json.guest_email }}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{ $json.profile_text }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "input-validator",
+      "name": "✅ Input Validator",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b",
+        "prompt": "=Create a professional podcast episode package for:\n\nName: {{ $json.guest_name }}\nProfile: {{ $json.profile_text }}\nRole: {{ $json.job_description }}\nStyle: {{ $json.prompt_type }}\n\nReturn valid JSON only:\n{\n\"episode_title\": \"title\",\n\"guest_bio\": \"bio\",\n\"industry_focus\": \"industry\",\n\"win_story_1\": \"story 1\",\n\"win_story_2\": \"story 2\",\n\"question_1\": \"question?\",\n\"question_2\": \"question?\", \n\"question_3\": \"question?\",\n\"key_insights\": [\"insight1\", \"insight2\", \"insight3\"],\n\"episode_summary\": \"summary\"\n}",
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 800
+        }
+      },
+      "id": "ai-content-generator",
+      "name": "🤖 AI Content Generator",
+      "type": "n8n-nodes-base.ollama",
+      "typeVersion": 1,
+      "position": [860, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse AI response and combine with original data\nconst inputData = items[0].json;\nconst aiResponse = inputData.output || inputData.response || inputData.content;\n\ntry {\n  // Clean and parse AI response\n  let cleanedResponse = aiResponse.trim();\n  \n  // Remove any markdown code blocks\n  cleanedResponse = cleanedResponse.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n  \n  // Find JSON object in response\n  const jsonStart = cleanedResponse.indexOf('{');\n  const jsonEnd = cleanedResponse.lastIndexOf('}') + 1;\n  \n  if (jsonStart >= 0 && jsonEnd > jsonStart) {\n    cleanedResponse = cleanedResponse.substring(jsonStart, jsonEnd);\n  }\n  \n  // Parse JSON\n  const aiContent = JSON.parse(cleanedResponse);\n  \n  // Combine original data with AI generated content\n  const result = {\n    // Original input data\n    processing_id: inputData.processing_id,\n    guest_name: inputData.guest_name,\n    guest_email: inputData.guest_email,\n    profile_text: inputData.profile_text,\n    job_description: inputData.job_description,\n    prompt_type: inputData.prompt_type,\n    timestamp: inputData.timestamp,\n    \n    // AI generated content\n    ...aiContent,\n    \n    // Metadata\n    ai_model: \"llama3.2:1b\",\n    generation_timestamp: new Date().toISOString(),\n    content_quality: \"professional\",\n    automation_level: \"100%\"\n  };\n  \n  return [{ json: result }];\n  \n} catch (error) {\n  // Error handling\n  return [{\n    json: {\n      error: true,\n      error_message: \"Failed to parse AI response: \" + error.message,\n      raw_ai_response: aiResponse,\n      processing_id: inputData.processing_id,\n      guest_name: inputData.guest_name,\n      timestamp: new Date().toISOString()\n    }\n  }];\n}"
+      },
+      "id": "content-processor",
+      "name": "🔧 Content Processor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [1080, 220]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.error }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "error-checker",
+      "name": "🚨 Error Checker",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "html_package",
+              "value": "=<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n    <meta charset=\"UTF-8\">\\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\\n    <title>{{ $json.episode_title }} - Professional Podcast Package</title>\\n    <style>\\n        * { margin: 0; padding: 0; box-sizing: border-box; }\\n        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }\\n        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }\\n        .header { background: rgba(255,255,255,0.95); border-radius: 15px; padding: 30px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }\\n        .episode-title { font-size: 2.5em; color: #2c3e50; margin-bottom: 10px; font-weight: 700; }\\n        .guest-name { font-size: 1.8em; color: #e74c3c; margin-bottom: 20px; }\\n        .industry-badge { display: inline-block; background: #3498db; color: white; padding: 8px 16px; border-radius: 25px; font-weight: bold; margin-bottom: 20px; }\\n        .section { background: rgba(255,255,255,0.95); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }\\n        .section-title { font-size: 1.5em; color: #2c3e50; margin-bottom: 15px; border-bottom: 3px solid #3498db; padding-bottom: 5px; }\\n        .bio-text { font-size: 1.1em; color: #555; margin-bottom: 15px; }\\n        .questions { list-style: none; }\\n        .questions li { background: #f8f9fa; margin: 10px 0; padding: 15px; border-radius: 8px; border-left: 4px solid #e74c3c; }\\n        .win-stories { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }\\n        .win-story { background: linear-gradient(45deg, #ff6b6b, #feca57); color: white; padding: 20px; border-radius: 10px; font-weight: bold; }\\n        .insights { list-style: none; }\\n        .insights li { background: #e8f5e8; margin: 8px 0; padding: 12px; border-radius: 6px; border-left: 4px solid #27ae60; }\\n        .metadata { background: #34495e; color: white; border-radius: 12px; padding: 20px; margin-top: 20px; }\\n        .metadata-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }\\n        .metadata-item { text-align: center; }\\n        .metadata-value { font-size: 1.2em; font-weight: bold; color: #3498db; }\\n        .footer { text-align: center; margin-top: 30px; color: rgba(255,255,255,0.8); }\\n        @media (max-width: 768px) { .win-stories { grid-template-columns: 1fr; } .metadata-grid { grid-template-columns: 1fr; } }\\n    </style>\\n</head>\\n<body>\\n    <div class=\"container\">\\n        <div class=\"header\">\\n            <h1 class=\"episode-title\">{{ $json.episode_title }}</h1>\\n            <h2 class=\"guest-name\">Featuring {{ $json.guest_name }}</h2>\\n            <span class=\"industry-badge\">{{ $json.industry_focus }} • {{ $json.prompt_type }}</span>\\n            <p class=\"bio-text\">{{ $json.guest_bio }}</p>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">🎯 Professional Background</h3>\\n            <p><strong>Current Role:</strong> {{ $json.job_description }}</p>\\n            <br>\\n            <p><strong>Professional Profile:</strong> {{ $json.profile_text }}</p>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">🏆 Success Stories</h3>\\n            <div class=\"win-stories\">\\n                <div class=\"win-story\">{{ $json.win_story_1 }}</div>\\n                <div class=\"win-story\">{{ $json.win_story_2 }}</div>\\n            </div>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">❓ Interview Questions</h3>\\n            <ul class=\"questions\">\\n                <li><strong>Q1:</strong> {{ $json.question_1 }}</li>\\n                <li><strong>Q2:</strong> {{ $json.question_2 }}</li>\\n                <li><strong>Q3:</strong> {{ $json.question_3 }}</li>\\n            </ul>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">💡 Key Insights</h3>\\n            <ul class=\"insights\">\\n                <li>{{ $json.key_insights[0] || 'Professional insight 1' }}</li>\\n                <li>{{ $json.key_insights[1] || 'Professional insight 2' }}</li>\\n                <li>{{ $json.key_insights[2] || 'Professional insight 3' }}</li>\\n            </ul>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">📝 Episode Summary</h3>\\n            <p class=\"bio-text\">{{ $json.episode_summary }}</p>\\n        </div>\\n\\n        <div class=\"metadata\">\\n            <h3 style=\"text-align: center; margin-bottom: 20px;\">📊 Package Metadata</h3>\\n            <div class=\"metadata-grid\">\\n                <div class=\"metadata-item\">\\n                    <div class=\"metadata-value\">{{ $json.processing_id }}</div>\\n                    <div>Processing ID</div>\\n                </div>\\n                <div class=\"metadata-item\">\\n                    <div class=\"metadata-value\">{{ $json.ai_model }}</div>\\n                    <div>AI Model</div>\\n                </div>\\n                <div class=\"metadata-item\">\\n                    <div class=\"metadata-value\">{{ $json.automation_level }}</div>\\n                    <div>Automation</div>\\n                </div>\\n                <div class=\"metadata-item\">\\n                    <div class=\"metadata-value\">CHF 0</div>\\n                    <div>Generation Cost</div>\\n                </div>\\n            </div>\\n        </div>\\n\\n        <div class=\"footer\">\\n            <p>🎪 Generated by Podcast Studio Million Dollar Pipeline</p>\\n            <p>🏔️ Swiss-Engineered Precision • {{ $json.generation_timestamp }}</p>\\n        </div>\\n    </div>\\n</body>\\n</html>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "html-generator",
+      "name": "🎨 HTML Package Generator",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1520, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "html",
+        "responseBody": "={{ $json.html_package }}",
+        "options": {}
+      },
+      "id": "success-response",
+      "name": "✅ HTML Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1740, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"error\",\n  \"message\": \"❌ Validation failed - Missing required fields\",\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"details\": \"Required fields: name, email, profile_text\",\n    \"received_data\": {\n      \"name\": \"{{ $json.guest_name || 'missing' }}\",\n      \"email\": \"{{ $json.guest_email || 'missing' }}\",\n      \"profile_text\": \"{{ $json.profile_text ? 'provided' : 'missing' }}\"\n    }\n  }\n}",
+        "options": {},
+        "responseCode": 400
+      },
+      "id": "validation-error",
+      "name": "❌ Validation Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [860, 380]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"error\",\n  \"message\": \"🤖 AI Content Generation Failed\",\n  \"error\": {\n    \"code\": \"AI_PROCESSING_ERROR\",\n    \"details\": \"{{ $json.error_message }}\",\n    \"ai_response\": \"{{ $json.raw_ai_response }}\",\n    \"processing_id\": \"{{ $json.processing_id }}\",\n    \"timestamp\": \"{{ $json.timestamp }}\"\n  }\n}",
+        "options": {},
+        "responseCode": 500
+      },
+      "id": "ai-error-response",
+      "name": "🤖 AI Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1520, 380]
+    }
+  ],
+  "connections": {
+    "webhook-input": {
+      "main": [
+        [
+          {
+            "node": "data-processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "data-processor": {
+      "main": [
+        [
+          {
+            "node": "input-validator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "input-validator": {
+      "main": [
+        [
+          {
+            "node": "ai-content-generator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "validation-error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ai-content-generator": {
+      "main": [
+        [
+          {
+            "node": "content-processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "content-processor": {
+      "main": [
+        [
+          {
+            "node": "error-checker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "error-checker": {
+      "main": [
+        [
+          {
+            "node": "html-generator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ai-error-response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "html-generator": {
+      "main": [
+        [
+          {
+            "node": "success-response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "connected-v1",
+  "id": "podcast-studio-connected",
+  "meta": {
+    "instanceId": "helix-hub-podcast-studio"
+  },
+  "tags": [
+    {
+      "name": "Podcast Automation",
+      "id": "podcast-automation",
+      "createdAt": "2025-08-17T10:00:00.000Z",
+      "updatedAt": "2025-08-17T10:00:00.000Z"
+    },
+    {
+      "name": "Million Dollar Pipeline",
+      "id": "million-dollar-pipeline", 
+      "createdAt": "2025-08-17T10:00:00.000Z",
+      "updatedAt": "2025-08-17T10:00:00.000Z"
+    }
+  ]
+}

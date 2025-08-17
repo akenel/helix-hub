@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎪 {{episode_title}}</title>
+    <meta name="description" content="Chuck Norris Academy: Where AI failures become legendary career advice!">
+    <meta property="og:title" content="{{episode_title}}">
+    <meta property="og:description" content="{{encouragement}}">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://helix-hub.com/chuck-academy-og.jpg">
+    
+    <style>
+        /* 🎪 CHUCK ACADEMY STYLING - LEGENDARY CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .hero-banner {
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .academy-logo {
+            font-size: 3em;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card h2 {
+            color: #feca57;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chuck-wisdom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            text-align: center;
+            font-size: 1.3em;
+            line-height: 1.6;
+            font-style: italic;
+        }
+        
+        .quote-marks {
+            font-size: 2em;
+            color: #feca57;
+            opacity: 0.7;
+        }
+        
+        .career-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .career-item {
+            background: rgba(254, 202, 87, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .career-item:hover {
+            border-color: #feca57;
+            background: rgba(254, 202, 87, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .links-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .link-item {
+            display: block;
+            color: #48dbfb;
+            text-decoration: none;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #48dbfb;
+        }
+        
+        .link-item:hover {
+            background: rgba(72, 219, 251, 0.2);
+            transform: translateX(10px);
+            color: #fff;
+        }
+        
+        .error-context {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .encouragement-box {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: #2d3436;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(86, 171, 47, 0.3);
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #feca57;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .cta-button {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: #fff;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.6);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            border-right: .15em solid #feca57;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .15em;
+            animation: typing 3s steps(40, end), blink-caret .75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #feca57; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <div class="academy-logo pulse">🎪 CHUCK NORRIS ACADEMY</div>
+        <div class="subtitle typewriter">Where AI Failures Become Legendary Careers!</div>
+        <div style="font-size: 1.1em; margin-top: 15px;">
+            Session #{{academy_session}} • {{chuck_rating}} • {{user_level}}
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Main Content Grid -->
+        <div class="main-content">
+            <!-- Guest Profile -->
+            <div class="card">
+                <h2>🎯 Career Warrior Profile</h2>
+                <div style="margin-bottom: 20px;">
+                    <strong>Name:</strong> {{guest_name}}<br>
+                    <strong>Email:</strong> {{guest_email}}<br>
+                    <strong>Academy Level:</strong> {{user_level}}<br>
+                    <strong>Processing ID:</strong> {{processing_id}}
+                </div>
+                
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 15px 0;">
+                    <strong>📝 Your Profile:</strong><br>
+                    {{profile_text}}
+                </div>
+                
+                {{#job_description}}
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 15px 0;">
+                    <strong>💼 Target Role:</strong><br>
+                    {{job_description}}
+                </div>
+                {{/job_description}}
+            </div>
+
+            <!-- Chuck Wisdom -->
+            <div class="card chuck-wisdom">
+                <h2>🥋 Chuck's Career Wisdom</h2>
+                <div class="quote-marks">"</div>
+                <div style="font-size: 1.4em; margin: 20px 0;">
+                    {{chuck_joke}}
+                </div>
+                <div class="quote-marks" style="text-align: right;">"</div>
+                
+                <div style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                    {{chuck_advice}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Encouragement Box -->
+        <div class="encouragement-box">
+            {{encouragement}}
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value">{{academy_session}}</div>
+                <div class="stat-label">Academy Session</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Chuck Approved</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">∞</div>
+                <div class="stat-label">Career Potential</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{content_quality}}</div>
+                <div class="stat-label">Content Quality</div>
+            </div>
+        </div>
+
+        <!-- Career Suggestions -->
+        <div class="card">
+            <h2>🚀 Career Power-Ups</h2>
+            <p>Based on your profile, Chuck recommends these career paths:</p>
+            <div class="career-grid">
+                {{#career_suggestions}}
+                <div class="career-item">
+                    <strong>{{.}}</strong>
+                </div>
+                {{/career_suggestions}}
+            </div>
+        </div>
+
+        <!-- Error Context (Educational) -->
+        {{#error_context}}
+        <div class="error-context">
+            <h3>🤖 What Happened Behind the Scenes</h3>
+            <p><strong>Tech Issue:</strong> {{error_context}}</p>
+            <p style="margin-top: 10px;">{{ai_training_tip}}</p>
+        </div>
+        {{/error_context}}
+
+        <!-- Career Resources -->
+        <div class="links-section">
+            <h3 style="color: #feca57; margin-bottom: 20px;">📚 Career Resources Chuck Recommends</h3>
+            {{#career_links}}
+            <a href="{{.}}" target="_blank" class="link-item">{{.}}</a>
+            {{/career_links}}
+        </div>
+
+        <!-- Call to Action -->
+        <div class="cta-section">
+            <h3 style="margin-bottom: 20px;">Ready to Level Up Your Career?</h3>
+            <a href="#" class="cta-button" onclick="tryAgain()">🎯 Try the Oracle Again</a>
+            <a href="#" class="cta-button" style="margin-left: 20px;" onclick="shareChuck()">🎪 Share Chuck Academy</a>
+        </div>
+
+        <!-- Metadata -->
+        <div style="background: rgba(0,0,0,0.2); border-radius: 10px; padding: 20px; margin-top: 30px; font-size: 0.9em; opacity: 0.8;">
+            <strong>🔧 Session Details:</strong><br>
+            Content Type: {{content_type}} | AI Model: {{ai_model}} | Generated: {{generation_timestamp}}<br>
+            Automation Level: {{automation_level}} | Oracle Loaded: {{oracle_loaded}}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div style="font-size: 1.2em; margin-bottom: 15px;">
+            🎪 <strong>Chuck Norris Academy</strong> - Turning Tech Failures into Career Success!
+        </div>
+        <div style="opacity: 0.7;">
+            Powered by Helix Hub | When AI fails, Chuck prevails! 💪
+        </div>
+    </div>
+
+    <script>
+        // 🎪 CHUCK ACADEMY JAVASCRIPT - LEGENDARY INTERACTIONS
+        
+        function tryAgain() {
+            if (confirm('Ready to challenge the Oracle again? Chuck believes in you! 💪')) {
+                // Reload the original workflow
+                window.location.href = '/webhook-test/oracle-podcast';
+            }
+        }
+        
+        function shareChuck() {
+            const shareText = `Just got legendary career advice from Chuck Norris Academy! 🎪💪 When AI fails, Chuck prevails! Check out my session: {{episode_title}}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: '{{episode_title}}',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(shareText + ' ' + window.location.href).then(() => {
+                    alert('Chuck Academy session copied to clipboard! Share the wisdom! 🎪');
+                });
+            }
+        }
+        
+        // Easter egg: Konami code for super Chuck mode
+        let konamiCode = [];
+        const konamiSequence = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]; // ↑↑↓↓←→←→BA
+        
+        document.addEventListener('keydown', function(e) {
+            konamiCode.push(e.keyCode);
+            konamiCode = konamiCode.slice(-10);
+            
+            if (konamiCode.toString() === konamiSequence.toString()) {
+                document.body.style.animation = 'rainbow 0.5s infinite';
+                alert('🎉 SUPER CHUCK MODE ACTIVATED! Career success level: MAXIMUM! 💪');
+            }
+        });
+        
+        // Smooth scroll and interactive elements
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // Random motivational pop-ups (subtle)
+        setTimeout(() => {
+            if (Math.random() < 0.3) {
+                const motivations = [
+                    "Chuck believes in your potential! 💪",
+                    "Your career journey is just getting started! 🚀", 
+                    "Even AI failures can't stop your success! 🎯",
+                    "Chuck Norris Academy: Where legends are made! 🏆"
+                ];
+                
+                const randomMotivation = motivations[Math.floor(Math.random() * motivations.length)];
+                
+                // Create floating motivation
+                const motivation = document.createElement('div');
+                motivation.textContent = randomMotivation;
+                motivation.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(45deg, #ff6b6b, #feca57);
+                    color: white;
+                    padding: 15px;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    animation: slideIn 0.5s ease;
+                    cursor: pointer;
+                `;
+                
+                document.body.appendChild(motivation);
+                
+                // Remove after 5 seconds
+                setTimeout(() => {
+                    motivation.style.animation = 'slideOut 0.5s ease';
+                    setTimeout(() => motivation.remove(), 500);
+                }, 5000);
+                
+                motivation.onclick = () => motivation.remove();
+            }
+        }, 3000);
+    </script>
+    
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+    </style>
+</body>
+</html>

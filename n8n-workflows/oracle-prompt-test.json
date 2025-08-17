@@ -1,0 +1,50 @@
+{
+  "name": "Oracle Prompt Test",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "oracle-test",
+        "options": {}
+      },
+      "id": "webhook1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [300, 200]
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:latest",
+        "prompt": "={{ \n  $json.prompt_type === 'corporate_climber' ? \n  'Create a professional podcast interview prep package for CORPORATE CLIMBER style:\\n\\nName: ' + $json.name + '\\nProfile: ' + $json.profile_text + '\\n\\nFocus on executive leadership, strategic decisions, team management.\\nReturn JSON with: episode_title, guest_bio, leadership_story_1, question_1, professional_bio' : \n  'Create a simple podcast bio for: ' + $json.name + '\\nProfile: ' + $json.profile_text \n}}",
+        "options": {
+          "baseURL": "http://ollama:11434"
+        }
+      },
+      "id": "ollama1",
+      "name": "Oracle AI",
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [500, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"prompt_used\": $('Webhook').item.json.prompt_type, \"input\": $('Webhook').item.json, \"ai_response\": $json.response } }}"
+      },
+      "id": "respond1",
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook", 
+      "typeVersion": 1,
+      "position": [700, 200]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{"node": "Oracle AI", "type": "main", "index": 0}]]
+    },
+    "Oracle AI": {
+      "main": [[{"node": "Response", "type": "main", "index": 0}]]
+    }
+  }
+}

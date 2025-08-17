@@ -1,0 +1,128 @@
+{
+  "name": "🔍 Debug Oracle Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "debug-oracle",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-input",
+      "name": "🎯 Webhook Input",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "webhookId": "debug-oracle-studio"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "guest_name",
+              "value": "={{ $json.body.name }}"
+            },
+            {
+              "name": "profile_text",
+              "value": "={{ $json.body.profile_text }}"
+            },
+            {
+              "name": "prompt_type",
+              "value": "={{ $json.body.prompt_type || 'general' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "data-processor",
+      "name": "🔍 Data Processor",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b",
+        "prompt": "Create a simple bio for {{ $json.guest_name }}: {{ $json.profile_text }}",
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 200
+        }
+      },
+      "id": "ai-generator",
+      "name": "🤖 AI Content Generator",
+      "type": "n8n-nodes-base.ollama",
+      "typeVersion": 1,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Debug: show all available fields\nconst inputData = items[0].json;\n\nconsole.log('=== DEBUG: All available fields ===');\nconsole.log('Keys:', Object.keys(inputData));\nconsole.log('Full object:', JSON.stringify(inputData, null, 2));\n\n// Try different possible field names\nconst possibleFields = ['output', 'response', 'content', 'text', 'result', 'message'];\nconst foundFields = {};\n\npossibleFields.forEach(field => {\n  if (inputData[field] !== undefined) {\n    foundFields[field] = inputData[field];\n    console.log(`Found ${field}:`, inputData[field]);\n  }\n});\n\nreturn [{\n  json: {\n    debug_info: {\n      all_keys: Object.keys(inputData),\n      found_response_fields: foundFields,\n      guest_name: inputData.guest_name\n    },\n    ...inputData\n  }\n}];"
+      },
+      "id": "debug-processor",
+      "name": "🔧 Debug Processor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [860, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "debug-response",
+      "name": "✅ Debug Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1080, 300]
+    }
+  ],
+  "connections": {
+    "webhook-input": {
+      "main": [
+        [
+          {
+            "node": "data-processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "data-processor": {
+      "main": [
+        [
+          {
+            "node": "ai-generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ai-generator": {
+      "main": [
+        [
+          {
+            "node": "debug-processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "debug-processor": {
+      "main": [
+        [
+          {
+            "node": "debug-response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

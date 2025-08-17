@@ -1,0 +1,101 @@
+{
+  "name": "Simple Podcast Studio with HTML",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "simple-podcast",
+        "options": {}
+      },
+      "id": "webhook1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [300, 200]
+    },
+    {
+      "parameters": {
+        "include": "selected",
+        "includeFields": "body.name, body.email, body.profile_text, body.job_description, body.prompt_type",
+        "options": {}
+      },
+      "id": "edit-fields",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [500, 200]
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b",
+        "prompt": "=Create a podcast episode package for {{ $json.name }}.\n\nProfile: {{ $json.profile_text }}\nRole: {{ $json.job_description || 'Professional' }}\n\nReturn JSON with these exact fields:\n{\n\"episode_title\": \"engaging title\",\n\"guest_bio\": \"professional bio\",\n\"industry_focus\": \"main industry\", \n\"win_story_1\": \"achievement story\",\n\"win_story_2\": \"second achievement\",\n\"question_1\": \"career question?\",\n\"question_2\": \"challenge question?\",\n\"question_3\": \"advice question?\",\n\"key_insights\": [\"insight1\", \"insight2\", \"insight3\"],\n\"episode_summary\": \"episode description\"\n}",
+        "options": {
+          "baseURL": "http://ollama:11434",
+          "temperature": 0.7
+        }
+      },
+      "id": "ollama",
+      "name": "Ollama",
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [700, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Ollama response and combine with input\nconst inputData = items[0].json;\nconst ollamaResponse = inputData.response || inputData.output || inputData.content;\n\ntry {\n  // Clean response - remove markdown and extra text\n  let cleanResponse = ollamaResponse.trim();\n  cleanResponse = cleanResponse.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n  \n  // Find JSON object in response\n  const jsonStart = cleanResponse.indexOf('{');\n  const jsonEnd = cleanResponse.lastIndexOf('}') + 1;\n  \n  if (jsonStart >= 0 && jsonEnd > jsonStart) {\n    cleanResponse = cleanResponse.substring(jsonStart, jsonEnd);\n  }\n  \n  // Parse AI content\n  const aiContent = JSON.parse(cleanResponse);\n  \n  // Combine with original data\n  const result = {\n    // Original input\n    processing_id: `podcast_${Date.now()}_${inputData.name?.toLowerCase().replace(/\\s+/g, '_')}`,\n    guest_name: inputData.name,\n    guest_email: inputData.email,\n    profile_text: inputData.profile_text,\n    job_description: inputData.job_description || 'Professional',\n    prompt_type: inputData.prompt_type || 'general',\n    timestamp: new Date().toISOString(),\n    \n    // AI generated content\n    ...aiContent,\n    \n    // Metadata\n    ai_model: \"llama3.2:1b\",\n    generation_timestamp: new Date().toISOString(),\n    content_quality: \"professional\",\n    automation_level: \"100%\"\n  };\n  \n  return [{ json: result }];\n  \n} catch (error) {\n  return [{\n    json: {\n      error: true,\n      error_message: error.message,\n      raw_response: ollamaResponse,\n      guest_name: inputData.name,\n      guest_email: inputData.email,\n      timestamp: new Date().toISOString()\n    }\n  }];\n}"
+      },
+      "id": "processor",
+      "name": "Content Processor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "html_package",
+              "value": "=<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n    <meta charset=\"UTF-8\">\\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\\n    <title>{{ $json.episode_title }} - Podcast Package</title>\\n    <style>\\n        * { margin: 0; padding: 0; box-sizing: border-box; }\\n        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }\\n        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }\\n        .header { background: rgba(255,255,255,0.95); border-radius: 15px; padding: 30px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }\\n        .episode-title { font-size: 2.5em; color: #2c3e50; margin-bottom: 10px; font-weight: 700; }\\n        .guest-name { font-size: 1.8em; color: #e74c3c; margin-bottom: 20px; }\\n        .industry-badge { display: inline-block; background: #3498db; color: white; padding: 8px 16px; border-radius: 25px; font-weight: bold; margin-bottom: 20px; }\\n        .section { background: rgba(255,255,255,0.95); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }\\n        .section-title { font-size: 1.5em; color: #2c3e50; margin-bottom: 15px; border-bottom: 3px solid #3498db; padding-bottom: 5px; }\\n        .bio-text { font-size: 1.1em; color: #555; margin-bottom: 15px; }\\n        .questions { list-style: none; }\\n        .questions li { background: #f8f9fa; margin: 10px 0; padding: 15px; border-radius: 8px; border-left: 4px solid #e74c3c; }\\n        .win-stories { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }\\n        .win-story { background: linear-gradient(45deg, #ff6b6b, #feca57); color: white; padding: 20px; border-radius: 10px; font-weight: bold; }\\n        .insights { list-style: none; }\\n        .insights li { background: #e8f5e8; margin: 8px 0; padding: 12px; border-radius: 6px; border-left: 4px solid #27ae60; }\\n        .metadata { background: #34495e; color: white; border-radius: 12px; padding: 20px; margin-top: 20px; }\\n        .metadata-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }\\n        .metadata-item { text-align: center; }\\n        .metadata-value { font-size: 1.2em; font-weight: bold; color: #3498db; }\\n        .footer { text-align: center; margin-top: 30px; color: rgba(255,255,255,0.8); }\\n        @media (max-width: 768px) { .win-stories { grid-template-columns: 1fr; } .metadata-grid { grid-template-columns: 1fr; } }\\n    </style>\\n</head>\\n<body>\\n    <div class=\"container\">\\n        <div class=\"header\">\\n            <h1 class=\"episode-title\">{{ $json.episode_title }}</h1>\\n            <h2 class=\"guest-name\">Featuring {{ $json.guest_name }}</h2>\\n            <span class=\"industry-badge\">{{ $json.industry_focus }}</span>\\n            <p class=\"bio-text\">{{ $json.guest_bio }}</p>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">🎯 Professional Background</h3>\\n            <p><strong>Current Role:</strong> {{ $json.job_description }}</p>\\n            <br>\\n            <p><strong>Professional Profile:</strong> {{ $json.profile_text }}</p>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">🏆 Success Stories</h3>\\n            <div class=\"win-stories\">\\n                <div class=\"win-story\">{{ $json.win_story_1 }}</div>\\n                <div class=\"win-story\">{{ $json.win_story_2 }}</div>\\n            </div>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">❓ Interview Questions</h3>\\n            <ul class=\"questions\">\\n                <li><strong>Q1:</strong> {{ $json.question_1 }}</li>\\n                <li><strong>Q2:</strong> {{ $json.question_2 }}</li>\\n                <li><strong>Q3:</strong> {{ $json.question_3 }}</li>\\n            </ul>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">💡 Key Insights</h3>\\n            <ul class=\"insights\">\\n                <li>{{ $json.key_insights[0] || 'Professional insight 1' }}</li>\\n                <li>{{ $json.key_insights[1] || 'Professional insight 2' }}</li>\\n                <li>{{ $json.key_insights[2] || 'Professional insight 3' }}</li>\\n            </ul>\\n        </div>\\n\\n        <div class=\"section\">\\n            <h3 class=\"section-title\">📝 Episode Summary</h3>\\n            <p class=\"bio-text\">{{ $json.episode_summary }}</p>\\n        </div>\\n\\n        <div class=\"metadata\">\\n            <h3 style=\"text-align: center; margin-bottom: 20px;\">📊 Package Metadata</h3>\\n            <div class=\"metadata-grid\">\\n                <div class=\"metadata-item\">\\n                    <div class=\"metadata-value\">{{ $json.processing_id }}</div>\\n                    <div>Processing ID</div>\\n                </div>\\n                <div class=\"metadata-item\">\\n                    <div class=\"metadata-value\">{{ $json.ai_model }}</div>\\n                    <div>AI Model</div>\\n                </div>\\n                <div class=\"metadata-item\">\\n                    <div class=\"metadata-value\">{{ $json.automation_level }}</div>\\n                    <div>Automation</div>\\n                </div>\\n                <div class=\"metadata-item\">\\n                    <div class=\"metadata-value\">{{ $json.prompt_type || 'general' }}</div>\\n                    <div>Prompt Type</div>\\n                </div>\\n            </div>\\n        </div>\\n\\n        <div class=\"footer\">\\n            <p>🎪 Generated by Helix Hub Podcast Studio</p>\\n            <p>🏔️ Swiss-Engineered Precision • {{ $json.generation_timestamp }}</p>\\n        </div>\\n    </div>\\n</body>\\n</html>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "html-generator",
+      "name": "HTML Generator",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "html",
+        "responseBody": "={{ $json.html_package }}",
+        "options": {}
+      },
+      "id": "response",
+      "name": "HTML Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1300, 200]
+    }
+  ],
+  "connections": {
+    "webhook1": {
+      "main": [[{"node": "edit-fields", "type": "main", "index": 0}]]
+    },
+    "edit-fields": {
+      "main": [[{"node": "ollama", "type": "main", "index": 0}]]
+    },
+    "ollama": {
+      "main": [[{"node": "processor", "type": "main", "index": 0}]]
+    },
+    "processor": {
+      "main": [[{"node": "html-generator", "type": "main", "index": 0}]]
+    },
+    "html-generator": {
+      "main": [[{"node": "response", "type": "main", "index": 0}]]
+    }
+  }
+}

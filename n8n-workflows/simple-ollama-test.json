@@ -1,0 +1,50 @@
+{
+  "name": "Simple Ollama Test",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "simple-test",
+        "options": {}
+      },
+      "id": "webhook1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [300, 200]
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b",
+        "prompt": "Create a simple podcast guest bio for:\nName: {{ $json.body.name }}\nEmail: {{ $json.body.email }}\nProfile: {{ $json.body.profile_text }}\n\nReturn only a short professional bio paragraph.",
+        "options": {
+          "baseURL": "http://ollama:11434"
+        }
+      },
+      "id": "ollama1",
+      "name": "Ollama",
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [500, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"guest_name\": $('Webhook').item.json.body.name, \"guest_email\": $('Webhook').item.json.body.email, \"bio\": $json.response } }}"
+      },
+      "id": "respond1",
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook", 
+      "typeVersion": 1,
+      "position": [700, 200]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{"node": "Ollama", "type": "main", "index": 0}]]
+    },
+    "Ollama": {
+      "main": [[{"node": "Response", "type": "main", "index": 0}]]
+    }
+  }
+}

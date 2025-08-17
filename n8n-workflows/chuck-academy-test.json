@@ -1,0 +1,147 @@
+{
+  "name": "🎪 Oracle Podcast Studio v2 - Chuck Academy",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "oracle-podcast-v2",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-input",
+      "name": "🎯 Webhook Input",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "webhookId": "oracle-podcast-studio-v2"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "processing_id",
+              "value": "=podcast_{{ DateTime.now().toUnixInteger() }}_{{ $json.body.name.toLowerCase().replace(/\\s+/g, '_') }}"
+            },
+            {
+              "name": "guest_name",
+              "value": "={{ $json.body.name }}"
+            },
+            {
+              "name": "guest_email",
+              "value": "={{ $json.body.email }}"
+            },
+            {
+              "name": "profile_text",
+              "value": "={{ $json.body.profile_text }}"
+            },
+            {
+              "name": "job_description",
+              "value": "={{ $json.body.job_description || 'Professional' }}"
+            },
+            {
+              "name": "prompt_type",
+              "value": "={{ $json.body.prompt_type || 'general' }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ DateTime.now().toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "data-processor",
+      "name": "🔍 Data Processor",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 🎯 CHUCK ACADEMY - SIMPLIFIED TRIGGER\nconst inputData = items[0].json;\n\n// For testing, let's ALWAYS trigger Chuck Academy\nconsole.log('🎪 Always triggering Chuck Academy for testing');\n\nfunction generateChuckAcademy(userData, errorDetails) {\n  const chuckJokes = [\n    \"Chuck Norris doesn't need a resume. Jobs apply to him.\",\n    \"When Chuck Norris updates his LinkedIn, the servers thank him.\",\n    \"Chuck Norris once got a job by staring at the application form.\",\n    \"HR departments exist because Chuck Norris allows them to.\"\n  ];\n  \n  const careerAdvice = [\n    \"🎯 Pro Tip: Even when AI fails, YOU don't have to. Keep pushing forward!\",\n    \"💡 Career Wisdom: The best professionals adapt when technology doesn't work.\",\n    \"🚀 Success Secret: Turn every setback into a comeback story.\"\n  ];\n  \n  const careerLinks = [\n    \"🔗 LinkedIn Career Advice: https://linkedin.com/advice/career\",\n    \"📚 Harvard Business Review: https://hbr.org/topic/career-planning\",\n    \"💼 Indeed Career Guide: https://indeed.com/career-advice\"\n  ];\n  \n  const randomJoke = chuckJokes[Math.floor(Math.random() * chuckJokes.length)];\n  const randomAdvice = careerAdvice[Math.floor(Math.random() * careerAdvice.length)];\n  \n  let careerSuggestions = ['Financial Analyst', 'Investment Banker', 'Risk Manager'];\n  \n  return {\n    processing_id: userData.processing_id,\n    guest_name: userData.guest_name,\n    guest_email: userData.guest_email,\n    profile_text: userData.profile_text,\n    job_description: userData.job_description,\n    prompt_type: userData.prompt_type,\n    timestamp: userData.timestamp,\n    \n    episode_title: `🎪 Chuck Norris Academy: ${userData.guest_name}'s Career Adventure`,\n    guest_bio: `Meet ${userData.guest_name}, a professional who's about to get some legendary career advice from Chuck Norris himself!`,\n    chuck_joke: randomJoke,\n    chuck_advice: randomAdvice,\n    career_suggestions: careerSuggestions,\n    career_links: careerLinks,\n    \n    error_context: errorDetails,\n    encouragement: `Hey ${userData.guest_name}! Even when AI gets confused, your career potential is crystal clear!`,\n    \n    content_type: \"chuck_academy\",\n    ai_model: \"chuck_norris_wisdom_v1.0\",\n    generation_timestamp: new Date().toISOString(),\n    content_quality: \"legendary\",\n    academy_session: Math.floor(Math.random() * 1000) + 1,\n    chuck_rating: \"⭐⭐⭐⭐⭐\",\n    user_level: \"Career Warrior in Training\"\n  };\n}\n\n// Always return Chuck Academy for testing\nreturn [{\n  json: generateChuckAcademy(inputData, \"Testing Chuck Academy - This is how we turn errors into gold!\")\n}];"
+      },
+      "id": "content-processor",
+      "name": "🔧 Chuck Academy Generator",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 🎪 SIMPLE CHUCK ACADEMY HTML GENERATOR\nconst inputData = items[0].json;\n\nconsole.log('🎨 Generating Chuck Academy HTML');\n\n// Simple template - no complex logic\nconst htmlContent = `<!DOCTYPE html>\n<html>\n<head>\n    <title>🎪 Chuck Norris Academy</title>\n    <style>\n        body { font-family: Arial; background: #1e3c72; color: white; padding: 20px; }\n        .container { max-width: 800px; margin: 0 auto; background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; }\n        .title { font-size: 2em; text-align: center; margin-bottom: 20px; }\n        .section { margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 10px; }\n        .chuck-quote { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; text-align: center; font-style: italic; font-size: 1.2em; }\n        .career-item { background: rgba(254, 202, 87, 0.2); padding: 10px; margin: 5px; border-radius: 5px; display: inline-block; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"title\">🎪 CHUCK NORRIS ACADEMY</div>\n        <div class=\"subtitle\" style=\"text-align: center; margin-bottom: 30px;\">Where AI Failures Become Career Legends!</div>\n        \n        <div class=\"section\">\n            <h2>🎯 Career Warrior: ${inputData.guest_name}</h2>\n            <p><strong>Email:</strong> ${inputData.guest_email}</p>\n            <p><strong>Academy Session:</strong> #${inputData.academy_session}</p>\n            <p><strong>Profile:</strong> ${inputData.profile_text}</p>\n        </div>\n        \n        <div class=\"chuck-quote\">\n            \"${inputData.chuck_joke}\"\n        </div>\n        \n        <div class=\"section\">\n            <h3>💡 Chuck's Career Advice</h3>\n            <p>${inputData.chuck_advice}</p>\n        </div>\n        \n        <div class=\"section\">\n            <h3>🚀 Recommended Career Paths</h3>\n            ${inputData.career_suggestions.map(career => `<div class=\"career-item\">${career}</div>`).join('')}\n        </div>\n        \n        <div class=\"section\">\n            <h3>📚 Career Resources</h3>\n            ${inputData.career_links.map(link => `<p><a href=\"${link}\" style=\"color: #48dbfb;\">${link}</a></p>`).join('')}\n        </div>\n        \n        <div class=\"section\">\n            <h3>🤖 What Happened</h3>\n            <p><strong>Tech Issue:</strong> ${inputData.error_context}</p>\n            <p><strong>Encouragement:</strong> ${inputData.encouragement}</p>\n        </div>\n        \n        <div style=\"text-align: center; margin-top: 30px; font-size: 0.9em; opacity: 0.8;\">\n            <p>Session: ${inputData.academy_session} | Rating: ${inputData.chuck_rating} | Quality: ${inputData.content_quality}</p>\n            <p>Generated: ${inputData.generation_timestamp}</p>\n        </div>\n    </div>\n</body>\n</html>`;\n\nreturn [{\n  json: {\n    ...inputData,\n    html_content: htmlContent,\n    html_type: \"chuck_academy\",\n    file_name: `chuck-academy-${inputData.processing_id}.html`,\n    title: inputData.episode_title,\n    generation_status: \"chuck_academy_success\"\n  }\n}];"
+      },
+      "id": "html-generator",
+      "name": "🎨 Simple HTML Generator",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [860, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html_content }}",
+        "responseHeaders": {
+          "entries": [
+            {
+              "name": "Content-Type",
+              "value": "text/html; charset=utf-8"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "html-response",
+      "name": "🎪 HTML Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1080, 300]
+    }
+  ],
+  "connections": {
+    "webhook-input": {
+      "main": [
+        [
+          {
+            "node": "data-processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "data-processor": {
+      "main": [
+        [
+          {
+            "node": "content-processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "content-processor": {
+      "main": [
+        [
+          {
+            "node": "html-generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "html-generator": {
+      "main": [
+        [
+          {
+            "node": "html-response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -14,7 +14,7 @@
 ### 🎉 **PROVEN WORKING COMPONENTS**
 
 #### **Input Processing** ✅
-- **Webhook endpoint**: Receives form data (name, email, linkedin_text)
+- **Webhook endpoint**: Receives form data (name, email, cv_text, job description
 - **Data validation**: Clean field extraction working
 - **Test payload**: Jose Martinez banking professional processed successfully
 
