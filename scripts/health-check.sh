@@ -26,8 +26,12 @@ check_service() {
     
     printf "%-25s" "${icon} ${name}"
     
-    # Use timeout to avoid hanging
-    response=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time 10 "$url" 2>/dev/null)
+    # Use timeout to avoid hanging, add -k for HTTPS self-signed certs
+    if [[ "$url" == https* ]]; then
+        response=$(curl -k -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time 10 "$url" 2>/dev/null)
+    else
+        response=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time 10 "$url" 2>/dev/null)
+    fi
     
     if [[ "$response" =~ $expected_status ]]; then
         echo -e "${GREEN}✅ UP ($response)${NC}"
@@ -41,18 +45,19 @@ check_service() {
     fi
 }
 
-# Function to check Redis (TCP connection)
+# Function to check Redis (Docker health status)
 check_redis() {
     local name=$1
     local icon=$2
     
     printf "%-25s" "${icon} ${name}"
     
-    if timeout 5 redis-cli -h localhost -p 6379 ping &>/dev/null; then
-        echo -e "${GREEN}✅ UP (PONG)${NC}"
+    # Check if Redis container is healthy
+    if docker inspect helix-redis --format='{{.State.Health.Status}}' 2>/dev/null | grep -q "healthy"; then
+        echo -e "${GREEN}✅ UP (HEALTHY)${NC}"
         return 0
     else
-        echo -e "${RED}❌ DOWN (No PONG)${NC}"
+        echo -e "${RED}❌ DOWN (UNHEALTHY)${NC}"
         return 1
     fi
 }

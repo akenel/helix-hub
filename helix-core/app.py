@@ -332,6 +332,11 @@ def enterprise_dashboard():
     """Helix Hub Enterprise Dashboard - Infrastructure Overview"""
     return send_from_directory('static', 'enterprise-dashboard.html')
 
+@app.route("/coffee")
+def coffee_packages():
+    """Swiss Coffee Package Store - Premium Demo Access"""
+    return send_from_directory('static', 'coffee-packages.html')
+
 @app.route("/dashboard")
 def dashboard():
     """Helix Dashboard - Real-time monitoring interface"""
