@@ -7,7 +7,7 @@ import sys
 from datetime import datetime
 import mt940
 import paramiko
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, url_for, send_from_directory
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt
 from flask_restx import Api, Resource, fields, Namespace
 from file_processors import FileProcessorFactory
@@ -318,12 +318,22 @@ class Login(Resource):
         }
 
 @app.route("/")
-def home():
-    """Home page redirect to dashboard"""
-    return redirect(url_for('dashboard'))
+def landing_page():
+    """FaaF Academy Landing Page - Career Coaching Platform"""
+    return send_from_directory('static', 'faaf-landing-page.html')
+
+@app.route("/demo")  
+def demo_page():
+    """FaaF Academy Live Demo - Template Testing Interface"""
+    return send_from_directory('static', 'faaf-local-viewer.html')
 
 @app.route("/dashboard")
 def dashboard():
+    """Helix Dashboard - Real-time monitoring interface"""
+    return redirect(url_for('helix_dashboard'))
+
+@app.route("/helix")
+def helix_dashboard():
     """Helix Dashboard - Real-time monitoring interface"""
     try:
         # Get comprehensive dashboard data

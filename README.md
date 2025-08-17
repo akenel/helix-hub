@@ -2,12 +2,21 @@ Based on the list of services you're running, it looks like you’ve set up a ve
 
 ---
 
-### 🧠 **helix-hub / helix-core**
+### 🧠 **helix-hub / helix-core** 
 
 * **Image:** `helix/helix-core:dev`
 * **Port:** `5000`
-* **Use:** Likely a code collaboration and versioning platform (similar to Perforce Helix Core).
-* **What to do:** Use this as your **central version control system** for large-scale codebases, especially if you need better support for binary files or enterprise-grade collaboration.
+* **Services:** 
+  - 🎪 **FaaF Academy** - Career coaching platform with "Failure as a Feature" philosophy
+  - 🏦 **Helix Core** - Banking file processing system (MT940, BAI2, CAMT053)
+* **Routes:**
+  - `/` - FaaF Academy Landing Page (Professional career coaching SaaS)
+  - `/demo` - FaaF Academy Live Demo (Template testing interface) 
+  - `/helix` - Helix Dashboard (Banking operations monitoring)
+* **Business Model:** $10k-100k+ annual revenue potential through career coaching subscriptions
+* **What to do:** 
+  - **Career Coaching SaaS:** Use FaaF Academy for professional coaching with specialized templates
+  - **Banking Integration:** Process financial files with enterprise-grade routing engine
 
 ---
 

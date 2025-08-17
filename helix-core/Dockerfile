@@ -20,6 +20,7 @@ COPY file_processors.py .
 COPY dashboard.py .
 COPY routing.py .
 COPY templates/ ./templates/
+COPY static/ ./static/
 
 # Ensure Python output is not buffered
 ENV PYTHONUNBUFFERED=1
