@@ -41,6 +41,22 @@ check_service() {
     fi
 }
 
+# Function to check Redis (TCP connection)
+check_redis() {
+    local name=$1
+    local icon=$2
+    
+    printf "%-25s" "${icon} ${name}"
+    
+    if timeout 5 redis-cli -h localhost -p 6379 ping &>/dev/null; then
+        echo -e "${GREEN}✅ UP (PONG)${NC}"
+        return 0
+    else
+        echo -e "${RED}❌ DOWN (No PONG)${NC}"
+        return 1
+    fi
+}
+
 echo "🏢 ENTERPRISE SERVICES STATUS"
 echo "=============================="
 
@@ -52,7 +68,7 @@ healthy_services=0
 if check_service "FaaF Academy" "http://localhost:5000/" "🎪" "200"; then ((healthy_services++)); fi; ((total_services++))
 if check_service "Enterprise Dashboard" "http://localhost:5000/enterprise" "🏢" "200"; then ((healthy_services++)); fi; ((total_services++))
 if check_service "Demo Platform" "http://localhost:5000/demo" "🎮" "200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "Banking Dashboard" "http://localhost:5000/helix" "🏦" "200|30[0-9]"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Banking Dashboard" "http://localhost:5000/helix" "🏦" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
 
 echo ""
 echo "🔧 INFRASTRUCTURE SERVICES"
@@ -62,17 +78,18 @@ echo "=========================="
 if check_service "Portainer" "https://localhost:9443" "🐳" "200"; then ((healthy_services++)); fi; ((total_services++))
 if check_service "n8n Automation" "http://localhost:5678" "⚙️" "200"; then ((healthy_services++)); fi; ((total_services++))
 if check_service "Keycloak SSO" "http://localhost:8081" "🔐" "200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "Vault Secrets" "http://localhost:8200" "🗄️" "200|30[0-9]"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Vault Secrets" "http://localhost:8200" "🗄️" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
 if check_service "File Browser" "http://localhost:8082" "📁" "200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "Traefik Gateway" "http://localhost:8080" "🌐" "200|30[0-9]"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Traefik Gateway" "http://localhost:8080" "🌐" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
 
 echo ""
 echo "📊 OBSERVABILITY STACK"
 echo "======================"
 
 # Observability Services
-if check_service "Prometheus" "http://localhost:9090" "📈" "200|40[0-9]"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "Grafana" "http://localhost:3000" "📊" "200|30[0-9]"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Prometheus" "http://localhost:9090" "📈" "40[0-9]|30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Grafana" "http://localhost:3000" "📊" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
+if check_redis "Redis Cache" "⚡"; then ((healthy_services++)); fi; ((total_services++))
 if check_service "Ollama AI" "http://localhost:11434" "🤖" "200|404"; then ((healthy_services++)); fi; ((total_services++))
 
 echo ""
@@ -102,7 +119,7 @@ echo ""
 echo "💰 INFRASTRUCTURE VALUE"
 echo "======================="
 
-enterprise_value=75000
+enterprise_value=80000
 monthly_cost=5
 annual_savings=$((enterprise_value - 60))
 
@@ -148,6 +165,7 @@ echo "🏢 Enterprise Dashboard: http://localhost:5000/enterprise"
 echo "🐳 Portainer:           https://localhost:9443"
 echo "📊 Grafana:             http://localhost:3000"
 echo "📈 Prometheus:          http://localhost:9090"
+echo "⚡ Redis:               redis://localhost:6379"
 echo "🔐 Keycloak:            http://localhost:8081"
 echo "⚙️  n8n:                 http://localhost:5678"
 

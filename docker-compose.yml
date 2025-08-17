@@ -236,6 +236,24 @@ services:
       - helix-net
     restart: unless-stopped
 
+  # 🚀 ENTERPRISE ADDITIONS - Phase 2B: Performance Beast
+  redis:
+    image: redis:7-alpine
+    container_name: helix-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass helixredis123
+    volumes:
+      - redis_data:/data
+    networks:
+      - helix-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 volumes:
   helix_db_data:
   n8n_data:
@@ -246,6 +264,7 @@ volumes:
   portainer_data:
   prometheus_data:
   grafana_data:
+  redis_data:
 
 networks:
   helix-net:
