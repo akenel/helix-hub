@@ -1,0 +1,109 @@
+{
+  "realm": "helix-hub",
+  "displayName": "Helix Hub Enterprise",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "clients": [
+    {
+      "clientId": "portainer",
+      "name": "Portainer Docker Management",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "portainer-client-secret",
+      "redirectUris": [
+        "https://localhost:9443/*",
+        "http://localhost:9443/*"
+      ],
+      "webOrigins": [
+        "https://localhost:9443",
+        "http://localhost:9443"
+      ],
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "directAccessGrantsEnabled": true
+    },
+    {
+      "clientId": "n8n",
+      "name": "n8n Workflow Automation",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "n8n-client-secret",
+      "redirectUris": [
+        "https://localhost:5678/*",
+        "http://localhost:5678/*"
+      ],
+      "webOrigins": [
+        "https://localhost:5678",
+        "http://localhost:5678"
+      ],
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "directAccessGrantsEnabled": true
+    },
+    {
+      "clientId": "faaf-academy",
+      "name": "FaaF Academy Career Platform",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "faaf-client-secret",
+      "redirectUris": [
+        "https://localhost:5000/*",
+        "http://localhost:5000/*"
+      ],
+      "webOrigins": [
+        "https://localhost:5000",
+        "http://localhost:5000"
+      ],
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "directAccessGrantsEnabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "email": "admin@helix-hub.local",
+      "firstName": "Helix",
+      "lastName": "Administrator",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "helixadmin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["admin", "user"],
+      "groups": ["administrators"]
+    }
+  ],
+  "groups": [
+    {
+      "name": "administrators",
+      "path": "/administrators"
+    },
+    {
+      "name": "users",
+      "path": "/users"
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Administrator role"
+      },
+      {
+        "name": "user",
+        "description": "Standard user role"
+      }
+    ]
+  }
+}

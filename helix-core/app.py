@@ -327,6 +327,11 @@ def demo_page():
     """FaaF Academy Live Demo - Template Testing Interface"""
     return send_from_directory('static', 'faaf-local-viewer.html')
 
+@app.route("/enterprise")
+def enterprise_dashboard():
+    """Helix Hub Enterprise Dashboard - Infrastructure Overview"""
+    return send_from_directory('static', 'enterprise-dashboard.html')
+
 @app.route("/dashboard")
 def dashboard():
     """Helix Dashboard - Real-time monitoring interface"""
