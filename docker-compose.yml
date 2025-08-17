@@ -254,6 +254,33 @@ services:
       timeout: 10s
       retries: 3
 
+  # 🦍 KONG API GATEWAY - Marcel's Enterprise Magic
+  kong:
+    image: kong:latest
+    container_name: helix-kong
+    environment:
+      - KONG_DATABASE=off
+      - KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml
+      - KONG_PROXY_ACCESS_LOG=/dev/stdout
+      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001
+      - KONG_PROXY_LISTEN=0.0.0.0:8000
+    ports:
+      - "8003:8000"
+      - "8001:8001"
+    volumes:
+      - kong_data:/kong/declarative
+    networks:
+      - helix-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 volumes:
   helix_db_data:
   n8n_data:
@@ -265,6 +292,7 @@ volumes:
   prometheus_data:
   grafana_data:
   redis_data:
+  kong_data:
 
 networks:
   helix-net:

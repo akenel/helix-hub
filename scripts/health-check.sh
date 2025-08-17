@@ -86,6 +86,7 @@ if check_service "Keycloak SSO" "http://localhost:8081" "🔐" "200"; then ((hea
 if check_service "Vault Secrets" "http://localhost:8200" "🗄️" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
 if check_service "File Browser" "http://localhost:8082" "📁" "200"; then ((healthy_services++)); fi; ((total_services++))
 if check_service "Traefik Gateway" "http://localhost:8080" "🌐" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Kong API Gateway" "http://localhost:8001" "🦍" "200"; then ((healthy_services++)); fi; ((total_services++))
 
 echo ""
 echo "📊 OBSERVABILITY STACK"
@@ -124,7 +125,7 @@ echo ""
 echo "💰 INFRASTRUCTURE VALUE"
 echo "======================="
 
-enterprise_value=80000
+enterprise_value=105000
 monthly_cost=5
 annual_savings=$((enterprise_value - 60))
 
@@ -173,6 +174,7 @@ echo "📈 Prometheus:          http://localhost:9090"
 echo "⚡ Redis:               redis://localhost:6379"
 echo "🔐 Keycloak:            http://localhost:8081"
 echo "⚙️  n8n:                 http://localhost:5678"
+echo "🦍 Kong API Gateway:    http://localhost:8001 (Proxy: 8003)"
 
 echo ""
 echo "🎪 Helix Hub Enterprise - Powering the Future!"
