@@ -275,20 +275,21 @@ table_header="\033[1;35m" # Purple
 table_reset="\033[0m"
 table_green="\033[1;32m"
 table_yellow="\033[1;33m"
-table_emoji=("🎪" "🏢" "🐳" "📊" "📈" "⚡" "🔐" "🚅" "🦍")
-table_names=("FaaF Academy" "Enterprise Cockpit" "Portainer" "Grafana" "Prometheus" "Redis" "Keycloak" "n8n" "Kong API Gateway")
-table_https=("https://localhost:5000/" "https://localhost:5000/enterprise" "https://localhost:9443" "https://localhost:3000" "https://localhost:9090" "redis://localhost:6379" "https://localhost:8081" "https://localhost:5678" "https://localhost:8001")
-table_http=("http://localhost:5000/" "http://localhost:5000/enterprise" "http://localhost:9443" "http://localhost:3000" "http://localhost:9090" "redis://localhost:6379" "http://localhost:8081" "http://localhost:5678" "http://localhost:8001 (Proxy: 8003)")
+table_emoji=("🎪" "🏢" "🐳" "📊" "📈" "⚡" "🔐" "🚅" "🦍" "🧨")
+table_names=("FaaF Academy" "Enterprise Secure Cockpit" "Portainer" "Grafana" "Prometheus" "Redis" "Keycloak" "n8n" "Kong API Gateway" "Traefik UI")
+table_https=("http://localhost:5000/" "https://localhost/enterprise" "https://localhost:9443" "https://localhost:3000" "https://localhost:9090" "redis://localhost:6379" "https://localhost:8081" "https://localhost:5678" "https://localhost:8001" "https://localhost:8080/dashboard")
+table_http=("http://localhost:5000/" "http://localhost:5000/enterprise" "http://localhost:9443" "http://localhost:3000" "http://localhost:9090" "redis://localhost:6379" "http://localhost:8081" "http://localhost:5678" "http://localhost:8001 (Proxy: 8003)" "http://localhost:8080/dashboard")
 table_story=(
-    "Learning gateway to FaaF."
-    "Built-in DevSecOps Culture"
-    "Effortless container simplicity."
-    "Visualize with Prometheus Grafana"
-    "Logging metrics and health."
-    "Fast caching on real-time apps."
-    "SSO JWT Tokens for Keycloak."
-    "Automate anything with n8n."
-    "Scalable Kong API management."
+    "Learn Level's Failures-as-Features..."
+    "Traefik HTTPS. SSL and mTLS..."
+    "Effortless container simplicity..."
+    "Visualize Prometheus & Grafana..."
+    "Logging metrics and health..."
+    "Fast caching on real-time apps..."
+    "SSO JWT Tokens for Keycloak..."
+    "Automate anything with n8n..."
+    "Scalable Kong API management..."
+    "Traefik Dashboard with mTLS..."
 )
 # Official documentation/website links
 table_links=(
@@ -301,16 +302,17 @@ table_links=(
     "https://www.keycloak.org/documentation"
     "https://n8n.io/docs"
     "https://docs.konghq.com/"
+    "https://doc.traefik.io/traefik/"
 )
 
 # Print table header
-echo -e "${table_border}┌────────────────────────────┬─────────────────────────────────────────────┬───────────────────────────────────────────┬───────────────────────────────────────────┬────────────────────────────────────────────┐${table_reset}"
-echo -e "${table_header}│ 🧩 Service Name            │ 🥇 Helix Hub HTTPS Link (SSO with mTLS)     │ 🕹️ HTTP localhost Links (port-forwarding)  │ 🏆 Official Link Documenttions            │ 🦍 Story Lines from Chuck ¬ Co,            │${table_reset}"
-echo -e "${table_border}├────────────────────────────┼─────────────────────────────────────────────┼───────────────────────────────────────────┼───────────────────────────────────────────┼────────────────────────────────────────────┤${table_reset}"
+echo -e "${table_border}┌──────────────────────────────────────┬─────────────────────────────────────────────┬───────────────────────────────────────────┬───────────────────────────────────────────┬────────────────────────────────────────────┐${table_reset}"
+echo -e "${table_header}│ 🧩 Service Name                      │ 🥇 Helix Hub HTTPS Link (SSO with mTLS)     │ 🕹️ HTTP localhost Links (port-forwarding)  │ 🏆 Official Link Documenttions            │ 🦍 Story Lines from Chuck & Co.            │${table_reset}"
+echo -e "${table_border}├──────────────────────────────────────┼─────────────────────────────────────────────┼───────────────────────────────────────────┼───────────────────────────────────────────┼────────────────────────────────────────────┤${table_reset}"
 
 # Print table rows
 closer_emojis=("😎" "🚀" "🌟" "💡" "🔥" "🎉" "🤖" "🦾" "🧠" "🦄" "🥇" "🍀" "🔐" "💎" "🎯" "🧩" "🧸" "🍵" "☕" "🦍" "🏆" "📈" "📊" "🔐" "🐳" "🏢" "🎪")
-for i in {0..8}; do
+for i in {0..9}; do
     emoji=${table_emoji[$i]}
     name=${table_names[$i]}
     https=${table_https[$i]}
@@ -324,11 +326,10 @@ for i in {0..8}; do
     https_color=$table_green
     # Color for HTTP
     http_color=$table_yellow
-    printf "${table_border}│${table_reset} %-2s %-23s ${table_border}│${table_reset} ${https_color}%-43s${table_reset} ${table_border}│${table_reset} ${http_color}%-41s${table_reset} ${table_border}│${table_reset} %-41s ${table_border}│${table_reset} %-39s %-2s ${table_border}│${table_reset}\n" "$emoji" "$name" "$https" "$http" "$link" "$story" "$closer"
+    printf "${table_border}│${table_reset} %-2s %-33s ${table_border}│${table_reset} ${https_color}%-43s${table_reset} ${table_border}│${table_reset} ${http_color}%-41s${table_reset} ${table_border}│${table_reset} %-41s ${table_border}│${table_reset} %-39s %-2s ${table_border}│${table_reset}\n" "$emoji" "$name" "$https" "$http" "$link" "$story" "$closer"
 done
-
 # Table footer
-echo -e "${table_border}└────────────────────────────┴─────────────────────────────────────────────┴───────────────────────────────────────────┴───────────────────────────────────────────┴────────────────────────────────────────────┘${table_reset}"
+echo -e "${table_border}└──────────────────────────────────────┴─────────────────────────────────────────────┴───────────────────────────────────────────┴───────────────────────────────────────────┴────────────────────────────────────────────┘${table_reset}"
 
 # Summary row
 echo -e "${table_green}Total UIs Secured: 8/9 via HTTPS | All Systems Go! 🚀${table_reset}"
