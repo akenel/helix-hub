@@ -1,5 +1,32 @@
-# /home/angel/helix-hub/docker-compose.yml
+version: '3.8'
 services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - helix-net
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    networks:
+      - helix-net
+    restart: unless-stopped
+
   traefik:
     image: traefik:v2.10
     command:
@@ -275,6 +302,7 @@ services:
     networks:
       - helix-net
     restart: unless-stopped
+
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 30s
