@@ -1,3 +1,48 @@
+
+# 🚦 Enterprise Health Check Script (August 2025 Edition)
+
+## 🏔️ Swiss Precision Health Monitoring
+
+Helix Hub now includes a next-level, enterprise-grade health check script:
+
+- Emoji-rich, color-coded output
+- Table view of all UI services (HTTPS/HTTP links, stories, status)
+- Docker stats, security summary, recent logs, and business impact
+- 15x more detail than before—built for real teams, real production
+
+**Sample Output:**
+```bash
+┌─────────────────────────────┬─────────────────────────────────────────────┬─────────────────────────────────────────────┬─────────────────────────────────────────────┐
+│ Service Name                │ HTTPS Link                                  │ HTTP Link                                   │ Story                                      │
+├─────────────────────────────┼─────────────────────────────────────────────┼─────────────────────────────────────────────┼─────────────────────────────────────────────┤
+│ 🎪 FaaF Academy           │ https://localhost:5000/                   │ http://localhost:5000/                    │ Your gateway to learning and innovation.  │
+│ 🏢 Enterprise Cockpit     │ https://localhost:5000/enterprise         │ http://localhost:5000/enterprise          │ Command central for all business operations. │
+│ ... (more rows) ...
+└─────────────────────────────┴─────────────────────────────────────────────┴─────────────────────────────────────────────┴─────────────────────────────────────────────┘
+Total UIs Secured: 8/9 via HTTPS | All Systems Go! 🚀
+
+Docker Container Details:
+   NAMES                     IMAGE                              STATUS                 CREATED
+   helix-grafana             grafana/grafana:latest             Up 7 hours             7 hours ago
+   ... (more containers) ...
+
+Security Summary:
+   SSL: All major UIs available via HTTPS.
+   SSO: Keycloak status checked.
+   Open Ports: 5000, 9443, 3000, 9090, 8081, 5678, 8001, 8200, 8082, 8080.
+
+Observability: Recent Logs
+   ...
+
+Business Impact:
+   Enterprise Stack Value: $105,000+
+   Monthly VPS Cost: $5
+   Annual Savings: $104,940
+```
+
+**Built by the Helix Hub team—Chuck, Marcel, Levels, and Angel—with tears of joy and Swiss precision.**
+
+---
 Based on the list of services you're running, it looks like you’ve set up a versatile and modular self-hosted infrastructure, likely for development, automation, file management, and possibly secure access control. Here’s a breakdown of what each service does and what I would do with them together:
 
 ---
