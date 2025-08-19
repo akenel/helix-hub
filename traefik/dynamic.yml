@@ -1,60 +1,64 @@
 http:
   routers:
-# Keycloak authentication service
     keycloak-router:
       rule: "Host(`keycloak.helix.local`)"
       entryPoints:
         - websecure
       service: keycloak-service
       tls: {}
-# n8n
     n8n-router:
       rule: "Host(`n8n.helix.local`)"
       entryPoints:
         - websecure
       service: n8n-service
       tls: {}
-# vault router
     vault:
       rule: "Host(`vault.helix.local`)"
       entryPoints:
-        - "websecure"
-      service: "vault-service"
+        - websecure
+      service: vault-service
       tls: {}
-# Main Helix Core application
     helix-router:
       rule: "Host(`helix.local`)"
       entryPoints:
         - websecure
       service: helix-service
       tls: {}
-# Traefik Dashboard
     traefik-router:
       rule: "Host(`traefik.helix.local`)"
       entryPoints:
         - websecure
       service: api@internal
       tls: {}
-# Ollama API
     ollama-router:
       rule: "Host(`ollama.helix.local`)"
       entryPoints:
         - websecure
       service: ollama-service
       tls: {}
-# FileBrowser - Web-based file manager
     files-router:
       rule: "Host(`files.helix.local`)"
       entryPoints:
         - websecure
       service: files-service
       tls: {}
-# SFTP (legacy - now using FileBrowser)
     sftp-router:
       rule: "Host(`sftp.helix.local`)"
       entryPoints:
         - websecure
       service: files-service
+      tls: {}
+    prometheus-router:
+      rule: "Host(`prometheus.helix.local`)"
+      entryPoints:
+        - websecure
+      service: prometheus-service
+      tls: {}
+    grafana-router:
+      rule: "Host(`grafana.helix.local`)"
+      entryPoints:
+        - websecure
+      service: grafana-service
       tls: {}
 
   services:
@@ -90,20 +94,11 @@ http:
       loadBalancer:
         servers:
           - url: "http://traefik:8080"
-  middlewares:
-    https-redirect:
-      redirectScheme:
-        scheme: https
-        permanent: true
-
-tls:
-  certificates:
-    - certFile: /certs/helix.local.pem
-      keyFile: /certs/helix.local-key.pem
-  options:
-    mkcert-tls:
-      minVersion: "VersionTLS12"
-      clientAuth:
-        caFiles:
-          - /certs/rootCA.pem
-        clientAuthType: RequestClientCert
+    prometheus-service:
+      loadBalancer:
+        servers:
+          - url: "http://prometheus:9090"
+    grafana-service:
+      loadBalancer:
+        servers:
+          - url: "http://grafana:3000"

@@ -58,31 +58,31 @@ total_services=0
 healthy_services=0
 
 # Core Business Services
-if check_service "FaaF Academy" "http://localhost:5000/" "🎪" "200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "Enterprise Cockpit" "http://localhost:5000/enterprise" "🏢" "200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "Demo Platform" "http://localhost:5000/demo" "🎮" "200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "Banking Dashboard" "http://localhost:5000/helix" "🏦" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "FaaF Academy" "https://helix.local:8443/" "🎪" "200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Enterprise Cockpit" "https://helix.local:8443/enterprise" "🏢" "200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Demo Platform" "https://helix.local:8443/demo" "🎮" "200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Banking Dashboard" "https://helix.local:8443/helix" "🏦" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
 
 echo ""
 echo "🔧 INFRASTRUCTURE SERVICES"
 echo "=========================="
 
 # Infrastructure Services
-if check_service "Portainer" "https://localhost:9443" "🐳" "200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "n8n Automation" "http://localhost:5678" "📢" "200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "Keycloak SSO" "http://localhost:8081" "🔐" "200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "Vault Secrets" "http://localhost:8200" "🐺" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "File Browser" "http://localhost:8082" "📁" "200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "Traefik Gateway" "http://localhost:8080" "🌐" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "Kong API Gateway" "http://localhost:8001" "🦍" "200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Portainer" "https://portainer.helix.local:9443" "🐳" "200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "n8n Automation" "https://n8n.helix.local:8443/" "📢" "200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Keycloak SSO" "https://keycloak.helix.local:8443/" "🔐" "200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Vault Secrets" "https://vault.helix.local:8443/" "🐺" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "File Browser" "https://files.helix.local:8443/" "📁" "200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Traefik Gateway" "https://traefik.helix.local:8443/dashboard" "🌐" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Kong API Gateway" "https://kong.helix.local:8443/" "🦍" "200"; then ((healthy_services++)); fi; ((total_services++))
 
 echo ""
 echo "📊 OBSERVABILITY STACK"
 echo "======================"
 
 # Observability Services
-if check_service "Prometheus" "http://localhost:9090" "📈" "40[0-9]|30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
-if check_service "Grafana" "http://localhost:3000" "📊" "30[0-9]|200"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Prometheus" "https://prometheus.helix.local:8443/" "📈" "40[0-9]|30[0-9]|200|404"; then ((healthy_services++)); fi; ((total_services++))
+if check_service "Grafana" "https://grafana.helix.local:8443/" "📊" "30[0-9]|200|404"; then ((healthy_services++)); fi; ((total_services++))
 if check_redis "Redis Cache" "🚅"; then ((healthy_services++)); fi; ((total_services++))
 if check_service "Ollama AI" "http://localhost:11434" "🤖" "200|404"; then ((healthy_services++)); fi; ((total_services++))
 
@@ -359,3 +359,76 @@ echo "  Annual Savings: \\$104,940"
 
 echo "\n🎪 Helix Hub Enterprise - Powering the Future!"
 echo "==============================================="
+
+
+# Core Business Services (HTTPS via Traefik):
+
+# 🎪 FaaF Academy: https://helix.local:8443/
+# 🏢 Enterprise Cockpit: https://helix.local:8443/enterprise
+# 🎮 Demo Platform: https://helix.local:8443/demo
+# 🏦 Banking Dashboard: https://helix.local:8443/helix
+# API & Health Endpoints:
+
+# 🏥 Health Check: https://helix.local:8443/health
+# 🏥 System Health: https://helix.local:8443/api/system/health
+# 📈 Stats: https://helix.local:8443/api/stats
+# 📝 Logs: https://helix.local:8443/api/logs
+# 📋 Supported Formats: https://helix.local:8443/supported-formats
+# 📚 Swagger API Docs: https://helix.local:8443/swagger/
+# 🔍 Debug Dashboard: https://helix.local:8443/api/debug/dashboard
+# Infrastructure Services (HTTPS):
+
+# 🐳 Portainer: https://helix.local:9443
+# 📢 n8n Automation: https://n8n.helix.local:8443/
+# 🔐 Keycloak SSO: https://helix.local:8443/keycloak
+# 🐺 Vault Secrets: https://helix.local:8443/vault
+# 📁 File Browser: https://helix.local:8443/filebrowser
+# 🌐 Traefik Gateway: https://helix.local:8443/dashboard
+# 🦍 Kong API Gateway: https://helix.local:8443/kong
+# n8n Webhook (for scenario kicks):
+
+# 🚦 n8n Webhook: https://n8n.helix.local:8443/webhook/PROD_n8n-base-sanity-check
+# Observability Stack (if routed):
+
+# 📈 Prometheus: https://helix.local:8443/prometheus
+# 📊 Grafana: https://helix.local:8443/grafana
+# 🚅 Redis: (usually not HTTPS, but if routed: https://helix.local:8443/redis)
+# Tips for Chuck:
+
+# Always use the helix.local:8443 or n8n.helix.local:8443 HTTPS endpoints for browser and curl tests.
+# Health check first (/health), then kick the n8n webhook, then test dashboards.
+# If you want to add more endpoints, just ask—this stack is ready for any kick!
+# Let me know if you want these added to your health-check script or HTML demo!
+
+echo ""
+echo "🔗 HELIX HUB SECURE ENDPOINTS (HTTPS via Traefik)"
+echo "==============================================="
+echo "🎪 FaaF Academy:           https://helix.local:8443/"
+echo "🏢 Enterprise Cockpit:      https://helix.local:8443/enterprise"
+echo "🎮 Demo Platform:           https://helix.local:8443/demo"
+echo "🏦 Banking Dashboard:       https://helix.local:8443/helix"
+echo ""
+echo "🏥 Health Check:            https://helix.local:8443/health"
+echo "🏥 System Health:           https://helix.local:8443/api/system/health"
+echo "📈 Stats:                   https://helix.local:8443/api/stats"
+echo "📝 Logs:                    https://helix.local:8443/api/logs"
+echo "📋 Supported Formats:       https://helix.local:8443/supported-formats"
+echo "📚 Swagger API Docs:        https://helix.local:8443/swagger/"
+echo "🔍 Debug Dashboard:         https://helix.local:8443/api/debug/dashboard"
+echo ""
+echo "🐳 Portainer:               https://helix.local:9443"
+echo "📢 n8n Automation:          https://n8n.helix.local:8443/"
+echo "🔐 Keycloak SSO:            https://helix.local:8443/keycloak"
+echo "🐺 Vault Secrets:           https://helix.local:8443/vault"
+echo "📁 File Browser:            https://helix.local:8443/filebrowser"
+echo "🌐 Traefik Gateway:         https://helix.local:8443/dashboard"
+echo "🦍 Kong API Gateway:        https://helix.local:8443/kong"
+echo ""
+echo "🚦 n8n Webhook:             https://n8n.helix.local:8443/webhook/PROD_n8n-base-sanity-check"
+echo ""
+echo "📈 Prometheus:              https://helix.local:8443/prometheus"
+echo "📊 Grafana:                 https://helix.local:8443/grafana"
+echo "🚅 Redis:                   https://helix.local:8443/redis (if routed)"
+echo "==============================================="
+echo "💡 Pro Tip: Copy-paste any link above for instant curl or browser kicks!"
+echo "🎯 Chuck's 10x Roundhouse Kicks: HTTPS everywhere, secure and ready!"

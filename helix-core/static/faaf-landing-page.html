@@ -193,21 +193,24 @@
                 prompt_type: "general"
             }
         };
-        
+        // http://0.0.0.0:5678/webhook/PROD_n8n-base-sanity-check
+        // Set the n8n workflow endpoint for easy testing and switching
+        const URL_n8n_WF = 'http://0.0.0.0:5678/webhook/PROD_n8n-base-sanity-check'; // prod endpoint
+        // For dev/test, you can change to: 'http://localhost:5678/webhook-test/podcast-studio/v2'
+
         function testScenario(type) {
-            const data = scenarios[type];
             const status = document.getElementById('demoStatus');
-            status.textContent = `Testing ${type} scenario - Generating career coaching...`;
-            
-            fetch('http://0.0.0.0:5678/webhook-test/oracle-podcast_v4', {
+            status.textContent = `Testing sanity check...`;
+
+            fetch(URL_n8n_WF, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                headers: { 'Content-Type': 'application/json' }
+                // For the basic sanity check, no body is needed
             })
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('demoOutput').srcdoc = html;
-                status.textContent = `✅ ${type.charAt(0).toUpperCase() + type.slice(1)} career coaching generated! See the personalized advice above.`;
+            .then(response => response.json())
+            .then(json => {
+                document.getElementById('demoOutput').srcdoc = `<pre>${JSON.stringify(json, null, 2)}</pre>`;
+                status.textContent = `✅ Sanity check passed! n8n is running and responding.`;
             })
             .catch(error => {
                 status.textContent = `❌ Demo error: ${error.message}`;

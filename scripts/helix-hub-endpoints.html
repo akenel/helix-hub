@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Helix Hub Secure Endpoints - Clickable Test Links</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: rgba(30, 41, 59, 0.95);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      padding: 32px 24px 24px 24px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.2em;
+      margin-bottom: 0.5em;
+      letter-spacing: 1px;
+    }
+    .section {
+      margin: 2em 0 1em 0;
+    }
+    .section-title {
+      font-size: 1.2em;
+      margin-bottom: 0.5em;
+      color: #a5b4fc;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin: 0.5em 0;
+      font-size: 1.08em;
+      display: flex;
+      align-items: center;
+    }
+    a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+      margin-left: 0.5em;
+    }
+    a:hover {
+      color: #fbbf24;
+      text-decoration: underline;
+    }
+    .emoji {
+      font-size: 1.3em;
+      margin-right: 0.5em;
+    }
+    .tip {
+      background: #312e81;
+      color: #fbbf24;
+      padding: 0.7em 1em;
+      border-radius: 8px;
+      margin: 2em 0 1em 0;
+      font-size: 1.08em;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .footer {
+      text-align: center;
+      margin-top: 2em;
+      color: #a5b4fc;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔗 Helix Hub Secure Endpoints</h1>
+    <div class="section">
+      <div class="section-title">Core Business Services</div>
+      <ul>
+        <li><span class="emoji">🎪</span>FaaF Academy: <a href="https://helix.local:8443/" target="_blank">https://helix.local:8443/</a></li>
+        <li><span class="emoji">🏢</span>Enterprise Cockpit: <a href="https://helix.local:8443/enterprise" target="_blank">/enterprise</a></li>
+        <li><span class="emoji">🎮</span>Demo Platform: <a href="https://helix.local:8443/demo" target="_blank">/demo</a></li>
+        <li><span class="emoji">🏦</span>Banking Dashboard: <a href="https://helix.local:8443/helix" target="_blank">/helix</a></li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">API & Health Endpoints</div>
+      <ul>
+        <li><span class="emoji">🏥</span>Health Check: <a href="https://helix.local:8443/health" target="_blank">/health</a></li>
+        <li><span class="emoji">🏥</span>System Health: <a href="https://helix.local:8443/api/system/health" target="_blank">/api/system/health</a></li>
+        <li><span class="emoji">📈</span>Stats: <a href="https://helix.local:8443/api/stats" target="_blank">/api/stats</a></li>
+        <li><span class="emoji">📝</span>Logs: <a href="https://helix.local:8443/api/logs" target="_blank">/api/logs</a></li>
+        <li><span class="emoji">📋</span>Supported Formats: <a href="https://helix.local:8443/supported-formats" target="_blank">/supported-formats</a></li>
+        <li><span class="emoji">📚</span>Swagger API Docs: <a href="https://helix.local:8443/swagger/" target="_blank">/swagger/</a></li>
+        <li><span class="emoji">🔍</span>Debug Dashboard: <a href="https://helix.local:8443/api/debug/dashboard" target="_blank">/api/debug/dashboard</a></li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">Infrastructure Services</div>
+      <ul>
+        <li><span class="emoji">🐳</span>Portainer: <a href="https://helix.local:9443" target="_blank">https://helix.local:9443</a></li>
+        <li><span class="emoji">📢</span>n8n Automation: <a href="https://n8n.helix.local:8443/" target="_blank">https://n8n.helix.local:8443/</a></li>
+        <li><span class="emoji">🔐</span>Keycloak SSO: <a href="https://helix.local:8443/keycloak" target="_blank">/keycloak</a></li>
+        <li><span class="emoji">🐺</span>Vault Secrets: <a href="https://helix.local:8443/vault" target="_blank">/vault</a></li>
+        <li><span class="emoji">📁</span>File Browser: <a href="https://helix.local:8443/filebrowser" target="_blank">/filebrowser</a></li>
+        <li><span class="emoji">🌐</span>Traefik Gateway: <a href="https://helix.local:8443/dashboard" target="_blank">/dashboard</a></li>
+        <li><span class="emoji">🦍</span>Kong API Gateway: <a href="https://helix.local:8443/kong" target="_blank">/kong</a></li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">n8n Webhook (for scenario kicks)</div>
+      <ul>
+        <li><span class="emoji">🚦</span>n8n Webhook: <a href="https://n8n.helix.local:8443/webhook/PROD_n8n-base-sanity-check" target="_blank">/webhook/PROD_n8n-base-sanity-check</a></li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">Observability Stack</div>
+      <ul>
+        <li><span class="emoji">📈</span>Prometheus: <a href="https://helix.local:8443/prometheus" target="_blank">/prometheus</a></li>
+        <li><span class="emoji">📊</span>Grafana: <a href="https://helix.local:8443/grafana" target="_blank">/grafana</a></li>
+        <li><span class="emoji">🚅</span>Redis: <a href="https://helix.local:8443/redis" target="_blank">/redis</a> <span style="color:#fbbf24;">(if routed)</span></li>
+      </ul>
+    </div>
+    <div class="tip">
+      💡 Pro Tip: Click any link above to open in a new tab, or copy for instant curl kicks!<br>
+      🎯 Chuck & Levels: 10x roundhouse kicks, all HTTPS, all secure, all fun!
+    </div>
+    <div class="footer">
+      🚀 Helix Hub Enterprise - Powering the Future!<br>
+      <span style="color:#fbbf24;">All systems operational. Ready for production.</span>
+    </div>
+  </div>
+</body>
+</html>

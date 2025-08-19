@@ -13,7 +13,7 @@ providers:
   file:
     filename: /etc/traefik/dynamic.yml
     watch: true
-# Remove ACME - using mkcert instead
+# using mkcert (no acme)
 tls:
   options:
     mkcert-tls:
