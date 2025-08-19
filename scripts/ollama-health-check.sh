@@ -48,7 +48,26 @@ echo "🐹 3. GUINEA PIG TEST: ANGEL'S SWISS WISDOM"
 echo "-------------------------------------------"
 
 # Test prompt for Angel
-PROMPT="You are talking to Angel, a Swiss enterprise architect with 40+ years experience who worked at SwissLife and built enterprise infrastructure. He's testing you before integrating with Vault and Keycloak. Respond in 2-3 sentences acknowledging his expertise."
+PROMPT="Who is Wilhelm Tell - was he 1 in a million?"
+MODEL="llama3.2:1b"
+echo "🎯 Testing Ollama with working model and prompt..."
+
+# Stream and concatenate response with spaces for readability
+FULL_RESPONSE=""
+curl -sk -X POST $OLLAMA_HTTPS/api/generate \
+    -H "Content-Type: application/json" \
+    -d "{\"model\":\"$MODEL\",\"prompt\":\"$PROMPT\"}" | \
+    jq -r '.response' | while read chunk; do
+        FULL_RESPONSE+="$chunk "
+        echo -n "$chunk "
+    done
+echo
+if [ -z "$FULL_RESPONSE" ]; then
+    echo "❌ Ollama failed to respond properly"
+else
+    echo "\n✅ Ollama Response:"
+    echo "$FULL_RESPONSE" | fold -s -w 80
+fi
 
 echo "🎯 Testing Ollama with Angel-specific prompt..."
 
@@ -127,4 +146,15 @@ echo
 echo "🎯 RECOMMENDATION: Proceed with Vault+Keycloak integration!"
 echo "☕ Coffee earned for successful AI health check: +2"
 echo
+# Example for n8n curl workflow test
+echo "🏹 Example for n8n curl workflow test:"
+curl -X POST https://ollama.helix.local:8443/api/generate \
+    -H "Content-Type: application/json" \
+    -d '{"prompt":"Who is the hero of Switzerland and what is his story in as many words you need to say so even a 5 year would understand?"}'
+echo "🏹 Wilhelm Tell would approve of this precision testing!"
+#!/bin/bash
+# Test Ollama AI via curl
+curl -X POST https://ollama.helix.local:8443/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"Who is the hero of Switzerland and what is his story in as many words you need to say so even a 5 year would understand?"}'
 echo "🏹 Wilhelm Tell would approve of this precision testing!"

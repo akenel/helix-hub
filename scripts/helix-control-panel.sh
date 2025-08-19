@@ -56,7 +56,19 @@ run_script() {
         # Run the script
         bash "$script_path"
         local exit_code=$?
-        
+                local choice
+                choice=$(whiptail --title "🏔️ Helix Hub Control Panel" --menu "Swiss-Precision Management System\nChoose an option:" 20 80 12 \
+                    "1" "🚀 Service Management" \
+                    "2" "🏥 Health & Monitoring" \
+                    "3" "🔐 Security & Authentication" \
+                    "4" "🛠️ Maintenance & Utilities" \
+                    "5" "📋 System Information" \
+                    "6" "🎪 Demo & Testing" \
+                    "7" "📊 View Container Logs" \
+                    "8" "💻 System Status" \
+                    "9" "📚 Documentation" \
+                    "0" "❌ Exit" \
+                    3>&1 1>&2 2>&3)
         echo
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         if [[ $exit_code -eq 0 ]]; then
