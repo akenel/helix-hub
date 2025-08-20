@@ -1,5 +1,11 @@
 http:
   routers:
+    moodle:
+      rule: "Host(`moodle.helix.local`)"
+      service: moodle
+      entryPoints:
+        - websecure
+      tls: {}
     keycloak-router:
       rule: "Host(`keycloak.helix.local`)"
       entryPoints:
@@ -67,21 +73,25 @@ http:
         - websecure
       service: openwebui-service
       tls: {}
-    moodle:
-          rule: "Host(`moodle.helix.local`)"
-          service: moodle
-          entryPoints:
-            - websecure
-          tls: {}
+  middlewares:
+    https-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+      middlewares:
+        - https-redirect
+        - add-headers
+        - custom-header
+        - my-custom-middleware
   services:
-    openwebui-router:
-      loadBalancer:
-        servers:
-          - url: "http://openwebui:8080"
     moodle:
       loadBalancer:
         servers:
           - url: "http://moodle:8080"
+    openwebui-router:
+      loadBalancer:
+        servers:
+          - url: "http://openwebui:8080"
     helix-service:
       loadBalancer:
         servers:
