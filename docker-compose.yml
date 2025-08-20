@@ -1,4 +1,4 @@
-version: '3.8'
+# /home/angel/helix-hub/docker-compose.yml
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -11,6 +11,37 @@ services:
       - helix-net
     restart: unless-stopped
 
+  moodle:
+    image: bitnami/moodle:latest
+    restart: unless-stopped
+    environment:
+      - MOODLE_DATABASE_TYPE=pgsql
+      - MOODLE_DATABASE_HOST=postgres-moodle
+      - MOODLE_DATABASE_PORT_NUMBER=5432
+      - MOODLE_DATABASE_USER=moodle
+      - MOODLE_DATABASE_PASSWORD=moodlepass
+      - MOODLE_DATABASE_NAME=moodle
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "8083:8080"  # Host port 8083, container port 8080
+    networks:
+      - helix-net
+    volumes:
+      - moodle_data:/bitnami/moodle
+      - moodle_apache:/bitnami/apache
+    depends_on:
+      - postgres-moodle
+  postgres-moodle:
+      image: postgres:14-alpine
+      restart: unless-stopped
+      environment:
+        - POSTGRES_DB=moodle
+        - POSTGRES_USER=moodle
+        - POSTGRES_PASSWORD=moodlepass
+      networks:
+        - helix-net
+      volumes:
+        - moodle_db_data:/var/lib/postgresql/data
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     depends_on:
@@ -104,6 +135,7 @@ services:
     environment:
       - N8N_HOST=n8n.helix.local
       - N8N_DEFAULT_CORS_ALLOW_ORIGIN=*
+      - N8N_DEFAULT_ALLOWED_ORIGINS=*
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=admin
       - N8N_BASIC_AUTH_PASSWORD=admin
@@ -118,6 +150,7 @@ services:
     networks:
       - helix-net
 
+
   ollama:
     image: ollama/ollama:latest
     restart: unless-stopped
@@ -127,6 +160,25 @@ services:
       - ollama_data:/root/.ollama
     networks:
       - helix-net
+
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: openwebui
+    restart: unless-stopped
+    ports:
+      - "3001:8080"
+    networks:
+      - helix-net
+    volumes:
+      - openwebui_data:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.openwebui.rule=Host(`openwebui.helix.local`)"
+    - "traefik.http.routers.openwebui.entrypoints=websecure"
+    - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
+    - "traefik.http.routers.openwebui.tls=true"
 
   # Web-based file manager for SFTP access
   filebrowser:
@@ -314,6 +366,7 @@ services:
       retries: 5
 
 volumes:
+  openwebui_data:
   helix_db_data:
   n8n_data:
   ollama_data:
@@ -325,6 +378,9 @@ volumes:
   grafana_data:
   redis_data:
   kong_data:
+  moodle_db_data:
+  moodle_data:
+  moodle_apache:
 
 networks:
   helix-net:

@@ -61,7 +61,27 @@ http:
       service: grafana-service
       tls: {}
 
+    openwebui-router:
+      rule: "Host(`openwebui.helix.local`)"
+      entryPoints:
+        - websecure
+      service: openwebui-service
+      tls: {}
+    moodle:
+          rule: "Host(`moodle.helix.local`)"
+          service: moodle
+          entryPoints:
+            - websecure
+          tls: {}
   services:
+    openwebui-router:
+      loadBalancer:
+        servers:
+          - url: "http://openwebui:8080"
+    moodle:
+      loadBalancer:
+        servers:
+          - url: "http://moodle:8080"
     helix-service:
       loadBalancer:
         servers:

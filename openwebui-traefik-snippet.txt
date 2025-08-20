@@ -1,0 +1,53 @@
+# --- Docker Compose service for OpenWebUI ---
+
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: openwebui
+    restart: unless-stopped
+    ports:
+      - "3000:8080" # Internal port 8080, external 3000 (can be changed)
+    networks:
+      - helix-net
+    volumes:
+      - openwebui-data:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434 # If you want to connect to Ollama
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.openwebui.rule=Host(`openwebui.helix.local`)"
+      - "traefik.http.routers.openwebui.entrypoints=websecure"
+      - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
+      - "traefik.http.routers.openwebui.tls=true"
+
+# --- Traefik dynamic.yml entry ---
+
+http:
+  routers:
+    openwebui:
+      rule: "Host(`openwebui.helix.local`)"
+      service: openwebui
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: myresolver
+  services:
+    openwebui:
+      loadBalancer:
+        servers:
+          - url: "http://openwebui:8080"
+
+# --- Add to networks section in docker-compose.yml ---
+
+networks:
+  helix-net:
+    external: true
+
+# --- Add to volumes section in docker-compose.yml ---
+
+volumes:
+  openwebui-data:
+    driver: local
+
+# --- Access ---
+# https://openwebui.helix.local (via Traefik, HTTPS)
+# http://localhost:3000 (direct, for local testing)
