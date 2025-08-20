@@ -71,7 +71,7 @@ SERVICES=(
 
 # --- Chuck Curling Roundhouse Demo ---
 # Default model is llama3.2:1b (free, works on most systems). Use --model tinyllama for smallest RAM.
-DEFAULT_MODEL="llama3.2:1b"
+DEFAULT_MODEL="tinyllama:latest"
 if [[ "$1" == "--model" && "$2" == "tinyllama" ]]; then
   DEFAULT_MODEL="tinyllama"
 fi
