@@ -4,19 +4,31 @@
 
 set -e
 
-echo "\n🔎 Checking Moodle Web Endpoint..."
-curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8080 | grep 200 && echo "✅ Moodle is up!" || echo "❌ Moodle not responding."
+echo -e "\n🔎 Checking Moodle HTTPS endpoint..."
+curl -k -I https://moodle.helix.local:8443
 
-echo "\n🔎 Checking Traefik Dashboard..."
-curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8081/dashboard/ | grep 200 && echo "✅ Traefik dashboard is up!" || echo "❌ Traefik dashboard not responding."
+echo -e "\n🔎 Checking Keycloak HTTPS endpoint..."
+curl -k -I https://keycloak.helix.local:8443
 
-echo "\n🔎 Testing Postgres DB connectivity from Moodle container..."
-docker compose exec moodle bash -c "psql -h postgres-moodle -U moodleuser -d moodle -c '\l'" && echo "✅ Moodle can connect to Postgres!" || echo "❌ DB connection failed."
+echo -e "\n🔎 Checking N8N HTTPS endpoint..."
+curl -k -I https://n8n.helix.local:8443
 
-echo "\n🔎 Listing running containers..."
+echo -e "\n🔎 Checking Vault HTTPS endpoint..."
+curl -k -I https://vault.helix.local:8443
+
+echo -e "\n🔎 Checking Grafana HTTPS endpoint..."
+curl -k -I https://grafana.helix.local:8443
+
+echo -e "\n🔎 Checking OpenWebUI HTTPS endpoint..."
+curl -k -I https://openwebui.helix.local:8443
+
+echo -e "\n🔎 Checking Traefik Dashboard HTTPS endpoint..."
+curl -k -I https://traefik.helix.local:8443
+
+echo -e "\n🔎 Listing running containers..."
 docker compose ps
 
-echo "\n🔎 Showing last 20 Moodle logs..."
+echo -e "\n🔎 Showing last 20 Moodle logs..."
 docker compose logs moodle --tail 20
 
-echo "\n🏁 Health check complete!"
+echo -e "\n🏁 Health check complete!"
