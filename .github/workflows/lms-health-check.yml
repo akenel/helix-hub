@@ -1,0 +1,25 @@
+name: LMS Health Check
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'LMS/lms-health-check.sh'
+      - 'docker-compose.yml'
+      - 'traefik/dynamic.yml'
+      - 'LMS/README.md'
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+      - name: Run LMS Health Check Script
+        run: |
+          chmod +x LMS/lms-health-check.sh
+          ./LMS/lms-health-check.sh || true
+        env:
+          MOODLE_DB_PASSWORD: ${{ secrets.MOODLE_DB_PASSWORD }}

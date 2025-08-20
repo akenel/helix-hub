@@ -1,4 +1,3 @@
-
 <img src="helix-core/data/jose_image.jpg" alt="Chick Logo" width="120" style="border-radius:50%;margin-bottom:10px;" />
 
 # 🐣 Helix Hub v0.0.1 – "Chuck-Approved HTTPS Milestone"
@@ -643,7 +642,8 @@ For those moments when you need undeniable, real-time proof that cannot be faked
 # ✅ Container process inspection from inside containers
 # ✅ Network activity monitoring
 # ✅ Log streaming with live timestamps
-# ✅ CEO Handshake Protection (10-second auto-play)
+# ✅ Evidence logging (technical + human readable)
+# ✅ Auto-boom countdown for CEO double-loop coverage
 # ✅ Mobile recording ready (continuous demonstration)
 ```
 
@@ -1172,4 +1172,16 @@ docker-compose up -d
 
 ---
 
-*P.S. - If you work for SAP and you're reading this... we're hiring! 😉*
+## LMS Onboarding & Health Check
+
+For first-time setup, troubleshooting, and QA, check out the new LMS folder:
+
+- `LMS/README.md`: Lessons learned, tips, and gotchas for Moodle/Postgres/Docker onboarding
+- `LMS/lms-health-check.sh`: One-command health check for Moodle, Traefik, Postgres, and Docker Compose
+
+Run the health check script after install:
+```bash
+./LMS/lms-health-check.sh
+```
+
+This will help you verify endpoints, DB connectivity, and container status quickly. Contributions and feedback welcome!
