@@ -16,28 +16,28 @@ if [[ "$1" == "--help" ]]; then
 fi
 
 
-
+# --- Default Model ---
+DEFAULT_MODEL="llama3.2:1b"
 # --- Parse Flags ---
-MODEL="llama3.2:1b"
 PROMPT="Who is Wilhelm Tell - was he 1 in a million?"
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --model) MODEL="$2"; shift 2;;
+    --model) DEFAULT_MODEL="$2"; shift 2;;
     --prompt|--p) PROMPT="$2"; shift 2;;
-    --chuck) MODEL="llama3.2:latest"; PROMPT="Who is Chuck Norris and how many roundhouse kicks does he do per minute?"; shift;;
-    --wilhelm) MODEL="llama3.2:1b"; PROMPT="Who is Wilhelm Tell - was he 1 in a million?"; shift;;
-    --swiss) MODEL="llama3.2:latest"; PROMPT="What makes Switzerland unique in Europe?"; shift;;
-    --mistral) MODEL="mistral:latest"; PROMPT="What is the Mistral model and why is it good for Swiss banking?"; shift;;
-    --llama) MODEL="llama3.2:latest"; PROMPT="Explain the difference between llama3.2:1b and llama3.2:latest."; shift;;
-    --levels) MODEL="llama3.2:1b"; PROMPT="Who is Levels and why does he love coffee?"; shift;;
-    --marcel) MODEL="llama3.2:latest"; PROMPT="Who is Marcel and what is his favorite Swiss workflow?"; shift;;
-    --angel) MODEL="llama3.2:1b"; PROMPT="Who is Angel and why does he like bash scripts?"; shift;;
-    --vault) MODEL="mistral:latest"; PROMPT="What is HashiCorp Vault and why is it important for security?"; shift;;
-    --keycloak) MODEL="llama3.2:latest"; PROMPT="What is Keycloak and how does it help with authentication?"; shift;;
-    --grafana) MODEL="llama3.2:1b"; PROMPT="What is Grafana and why do Swiss engineers love it?"; shift;;
-    --portainer) MODEL="llama3.2:latest"; PROMPT="What is Portainer and how does it help with Docker management?"; shift;;
-    --kong) MODEL="mistral:latest"; PROMPT="What is Kong API Gateway and why is it powerful?"; shift;;
-    --traefik) MODEL="llama3.2:1b"; PROMPT="What is Traefik and how does it route Swiss traffic?"; shift;;
+    --chuck) MODEL=$DEFAULT_MODEL; PROMPT="Who is Chuck Norris and how many roundhouse kicks does he do per minute?"; shift;;
+    --wilhelm) MODEL=$DEFAULT_MODEL; PROMPT="Who is Wilhelm Tell - was he 1 in a million?"; shift;;
+    --swiss) MODEL=$DEFAULT_MODEL; PROMPT="What makes Switzerland unique in Europe?"; shift;;
+    --mistral) MODEL=$DEFAULT_MODEL; PROMPT="What is the Mistral model and why is it good for Swiss banking?"; shift;;
+    --llama) MODEL=$DEFAULT_MODEL; PROMPT="Explain the difference between llama3.2:1b and llama3.2:latest."; shift;;
+    --levels) MODEL=$DEFAULT_MODEL; PROMPT="Who is Levels and why does he love coffee?"; shift;;
+    --marcel) MODEL=$DEFAULT_MODEL; PROMPT="Who is Marcel and what is his favorite Swiss workflow?"; shift;;
+    --angel) MODEL=$DEFAULT_MODEL; PROMPT="Who is Angel and why does he like bash scripts?"; shift;;
+    --vault) MODEL=$DEFAULT_MODEL; PROMPT="What is HashiCorp Vault and why is it important for security?"; shift;;
+    --keycloak) MODEL=$DEFAULT_MODEL; PROMPT="What is Keycloak and how does it help with authentication?"; shift;;
+    --grafana) MODEL=$DEFAULT_MODEL; PROMPT="What is Grafana and why do Swiss engineers love it?"; shift;;
+    --portainer) MODEL=$DEFAULT_MODEL; PROMPT="What is Portainer and how does it help with Docker management?"; shift;;
+    --kong) MODEL=$DEFAULT_MODEL; PROMPT="What is Kong API Gateway and why is it powerful?"; shift;;
+    --traefik) MODEL=$DEFAULT_MODEL; PROMPT="What is Traefik and how does it route Swiss traffic?"; shift;;
     *) shift;;
   esac
 done
@@ -50,7 +50,7 @@ echo -e "===============================================\n"
 # --- List Available Models ---
 echo -e "🤖 Available Ollama Models:"
 ollama list | awk 'NR==1{print $0}{print $1}' | column
-echo -e "\n(Default: $MODEL)"
+echo -e "\n(Default: $DEFAULT_MODEL)"
 
 SERVICES=(
   "helix.local:8443 helix.local:5000"
@@ -65,15 +65,11 @@ SERVICES=(
   "prometheus.helix.local:8443 prometheus:9090"
 )
 
-
-
-
-
 # --- Chuck Curling Roundhouse Demo ---
 # Default model is llama3.2:1b (free, works on most systems). Use --model tinyllama for smallest RAM.
-DEFAULT_MODEL="tinyllama:latest"
-if [[ "$1" == "--model" && "$2" == "tinyllama" ]]; then
-  DEFAULT_MODEL="tinyllama"
+DEFAULT_MODEL="llama3.2:1b"
+if [[ "$1" == "--model" && "$2" == "llama3.2:1b" ]]; then
+  DEFAULT_MODEL="llama3.2:1b"
 fi
 declare -A CHUCK_VARIATIONS=(
   [chuck]="$DEFAULT_MODEL|Who is Chuck Norris and how many roundhouse kicks does he do per minute?"
