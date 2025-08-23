@@ -121,6 +121,10 @@ yarn-error.log*
 *.p12
 *.pfx
 
+# ===== KeePass Database =====
+helix-core/config/KeePass-Helix-DB.kdbx
+*.kdbx
+
 # ===== Keep these empty directories =====
 !sftp/incoming/.gitkeep
 !helix-core/data/.gitkeep
