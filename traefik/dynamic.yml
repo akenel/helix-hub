@@ -73,22 +73,13 @@ http:
         - websecure
       service: openwebui-service
       tls: {}
-  middlewares:
-    https-redirect:
-      redirectScheme:
-        scheme: https
-        permanent: true
-      middlewares:
-        - https-redirect
-        - add-headers
-        - custom-header
-        - my-custom-middleware
+
   services:
     moodle:
       loadBalancer:
         servers:
           - url: "http://moodle:8080"
-    openwebui-router:
+    openwebui-service:
       loadBalancer:
         servers:
           - url: "http://openwebui:8080"
