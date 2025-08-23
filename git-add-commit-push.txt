@@ -1,0 +1,1 @@
+git add .gitignore && git commit -m "Milestone: 🥋 Chuck Norris QA - KeePass DB now gitignored for security" && git push
